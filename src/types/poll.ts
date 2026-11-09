@@ -24,5 +24,6 @@ export type Poll = {
   groupId: string;
   title: string;
   hostId: string;
+  confirmedOptionId?: string;
   options: TimeOption[];
 };

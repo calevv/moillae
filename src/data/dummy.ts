@@ -48,4 +48,25 @@ export const polls: Poll[] = [
       },
     ],
   },
+  {
+    id: "p2",
+    groupId: "g1",
+    title: "보드게임 번개",
+    hostId: "m2",
+    confirmedOptionId: "o5",
+    options: [
+      {
+        id: "o4",
+        date: "2026-11-28",
+        time: "18:00",
+        responses: { m1: "no", m2: "yes", m3: "yes", m4: "no", m5: "yes" },
+      },
+      {
+        id: "o5",
+        date: "2026-12-05",
+        time: "18:00",
+        responses: { m1: "yes", m2: "yes", m3: "yes", m4: "yes", m5: "no" },
+      },
+    ],
+  },
 ];
