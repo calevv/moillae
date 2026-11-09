@@ -1,75 +1,84 @@
-# React + TypeScript + Vite
+<div align="center">
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+  <h1>모일래 (가칭)</h1>
 
-Currently, two official plugins are available:
+  <p><strong>친구 그룹이 투표로 모일 시간을 정하는 웹 앱</strong></p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+  <!-- TODO: 배포 후 링크 추가
+  <p>
+    <a href="배포 주소">배포 사이트</a>
+  </p>
+  -->
+</div>
 
-## React Compiler
+<!-- TODO: 화면 캡처 2~3장 추가 (홈 / 그룹 상세 / 투표) -->
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> **진행 중인 프로젝트입니다.** 현재는 화면 틀(정적 UI, 더미 데이터)만 만들었고, 로그인·DB·투표 동작은 아직 구현하지 않았습니다. 서비스명 "모일래"는 가칭입니다.
 
-## Expanding the ESLint configuration
+## 프로젝트 개요
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+"언제 만날까?"를 단체 채팅방에서 일일이 묻고 답하는 대신, 후보 시간을 올리고 가능/불가능을 눌러 가장 많이 맞는 시간을 확인하면 좋겠다는 생각에서 시작했습니다. 투표로 모임 시간을 정하는 것을 먼저 만들고, 이후 개인 일정 공유와 빈 시간 찾기로 넓힐 계획입니다.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **개발 형태:** 1인 기획·개발
+- **개발 기간:** 2026.11 ~ 진행 중
+- **현재 단계:** 화면 틀 제작
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 주요 기능
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| 기능                    | 설명                                      | 상태    |
+| ----------------------- | ----------------------------------------- | ------- |
+| 그룹 만들기 · 초대 코드 | 그룹을 만들고 초대 코드로 친구가 참여     | 예정    |
+| 후보 시간 제안          | 모임을 만들며 후보 시간을 여러 개 올림    | 화면 틀 |
+| 투표                    | 후보마다 가능/불가능 응답, 가능 인원 확인 | 화면 틀 |
+| 시간 확정               | 방장이 가장 맞는 시간을 확정              | 화면 틀 |
 
-```
+## 기술 스택
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+| 분야          | 기술                        |
+| ------------- | --------------------------- |
+| 프론트엔드    | Vite, React, TypeScript     |
+| 스타일        | Tailwind CSS                |
+| 백엔드 (예정) | Supabase (PostgreSQL, Auth) |
+| 배포 (예정)   | Vercel                      |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+<!-- TODO: 기술을 고른 이유를 직접 설명할 수 있는 만큼만 한 줄씩 추가
+- Vite + React:
+- Tailwind:
+- Supabase:
+-->
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 로드맵
 
-```
+1. 화면 틀 (홈, 그룹 상세, 투표) ← 현재
+2. 투표 로직: 가능 인원 집계, 추천 시간 계산
+3. Supabase 연결: 로그인, 그룹, 초대 코드, 투표 저장
+4. 권한: 그룹 멤버만 조회·투표할 수 있도록 DB에서 제한
+5. 이후: 개인 일정 공유, 빈 시간 찾기
+
+<!-- TODO: 구현 후 작성
+
+## 주요 구현
+
+### 투표 집계와 추천 시간
+
+### 그룹 권한 관리 (RLS)
+
+-->
+
+<!-- TODO: 실제로 고민하고 결정한 것이 생기면 작성
+
+## 기술적 의사결정
+
+-->
+
+<!-- TODO: 문제를 겪고 해결한 뒤 작성
+
+## 트러블슈팅
+
+-->
+
+<!-- TODO: 폴더 구조가 정해진 뒤 작성
+
+## 폴더 구조
+
+-->
