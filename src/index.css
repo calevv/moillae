@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans KR", system-ui, sans-serif;
+
+  --color-coral: #f28b66;
+  --color-plum: #36172b;
+  --color-cream: #f8f3ef;
+  --color-line: #ebe2dc;
+  --color-subtext: #6b5662;
+
+  --color-track: #e3d8d1; /* 막대 빈칸 */
+  --color-muted-line: #9c8b93; /* 선택 안 된 버튼 테두리 */
+  --color-faint: #75636c; /* 미응답 글자 */
+  --color-holiday-bg: #fde8eb;
+  --color-holiday-text: #a8132c;
+  --color-holiday-date: #c0233d;
+}
