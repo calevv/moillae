@@ -1,4 +1,4 @@
-import type { Member, TimeOption } from "@/types/poll";
+import type { Member, Poll, TimeOption } from "@/types/poll";
 
 // 이 후보 시간에 "가능"이라고 답한 멤버 수
 export function countYes(option: TimeOption, members: Member[]): number {
@@ -12,5 +12,13 @@ export function getTopOption(
 ): TimeOption {
   return options.reduce((best, o) =>
     countYes(o, members) > countYes(best, members) ? o : best,
+  );
+}
+
+// 투표 중이고, 내가 아직 응답하지 않은 후보가 있으면 true
+export function needsMyResponse(poll: Poll, userId: string): boolean {
+  if (poll.confirmedOptionId) return false;
+  return poll.options.some(
+    (o) => (o.responses[userId] ?? "pending") === "pending",
   );
 }

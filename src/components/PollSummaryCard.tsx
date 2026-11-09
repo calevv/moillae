@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import type { Member, Poll } from "@/types/poll";
 import { formatDate, formatTime } from "@/utils/date";
-import { countYes, getTopOption } from "@/utils/poll";
+import { countYes, getTopOption, needsMyResponse } from "@/utils/poll";
 
 type PollSummaryCardProps = {
   poll: Poll;
@@ -56,9 +56,7 @@ export default function PollSummaryCard({
     );
   const respondedCount = members.filter((m) => isAnswered(m.id)).length;
   const top = getTopOption(poll.options, members);
-  const needsMyResponse = poll.options.some(
-    (o) => (o.responses[currentUserId] ?? "pending") === "pending",
-  );
+  const needs = needsMyResponse(poll, currentUserId);
 
   return (
     <Link to={to} className="flex flex-col gap-3 rounded-3xl bg-cream p-4">
@@ -80,7 +78,7 @@ export default function PollSummaryCard({
           {countYes(top, members)}/{members.length}명
         </span>
       </div>
-      {needsMyResponse && (
+      {needs && (
         <span className="inline-flex h-8 items-center gap-1.5 self-start rounded-full bg-plum px-3 text-[13px] font-bold text-white">
           <span className="size-2 rounded-full bg-coral" aria-hidden="true" />내
           응답이 필요해요

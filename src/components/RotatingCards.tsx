@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { members, polls } from "@/data/dummy";
+import { groups, members, polls } from "@/data/dummy";
+
 import { formatDate, formatTime } from "@/utils/date";
 import { countYes } from "@/utils/poll";
 
@@ -13,7 +14,10 @@ const SLOT_STYLES = [
 ];
 
 export default function RotatingCards() {
-  const options = polls[0].options;
+  const poll = polls[0];
+  const options = poll.options;
+  const group = groups.find((g) => g.id === poll.groupId);
+  const pollMembers = members.filter((m) => group?.memberIds.includes(m.id));
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -27,7 +31,7 @@ export default function RotatingCards() {
     return () => clearInterval(timer); // 화면을 떠나면 타이머 정리
   }, [options.length]);
 
-  const maxYes = Math.max(...options.map((o) => countYes(o, members)));
+  const maxYes = Math.max(...options.map((o) => countYes(o, pollMembers)));
 
   return (
     <div
@@ -36,8 +40,8 @@ export default function RotatingCards() {
     >
       {options.map((option, i) => {
         const slot = (i - active + options.length) % options.length;
-        const count = countYes(option, members);
-        const yesMembers = members.filter(
+        const count = countYes(option, pollMembers);
+        const yesMembers = pollMembers.filter(
           (m) => option.responses[m.id] === "yes",
         );
 
@@ -75,7 +79,7 @@ export default function RotatingCards() {
                 ))}
               </div>
               <span className="text-[15px] font-bold">
-                {count}/{members.length}명 가능
+                {count}/{pollMembers.length}명 가능
               </span>
             </div>
           </div>

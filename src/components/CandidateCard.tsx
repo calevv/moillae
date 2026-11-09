@@ -176,11 +176,11 @@ export default function CandidateCard({
       </div>
 
       {/* 멤버별 응답 */}
-      <ul className="flex">
+      <ul className="grid grid-cols-5 gap-y-3">
         {members.map((m) => {
           const status = option.responses[m.id] ?? "pending";
           return (
-            <li key={m.id} className="flex flex-1 flex-col items-center gap-1">
+            <li key={m.id} className="flex flex-col items-center gap-1">
               <div className="relative size-11">
                 <div className="flex size-11 items-center justify-center rounded-full bg-cream text-[15px] font-bold">
                   {m.name.slice(0, 1)}

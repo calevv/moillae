@@ -8,12 +8,18 @@ export const members: Member[] = [
   { id: "m3", name: "하은" },
   { id: "m4", name: "지호" },
   { id: "m5", name: "유나" },
+  { id: "m6", name: "민서" },
+  { id: "m7", name: "현우" },
+  { id: "m8", name: "수아" },
+  { id: "m9", name: "재윤" },
+  { id: "m10", name: "아린" },
 ];
 
 export const groups: Group[] = [
   { id: "g1", name: "대학 친구들", memberIds: ["m1", "m2", "m3", "m4", "m5"] },
+  { id: "g2", name: "회사 동기", memberIds: ["m1", "m6", "m7", "m8"] },
+  { id: "g3", name: "스터디 메이트", memberIds: ["m1", "m9", "m10"] },
 ];
-
 export const polls: Poll[] = [
   {
     id: "p1",
@@ -66,6 +72,21 @@ export const polls: Poll[] = [
         date: "2026-12-05",
         time: "18:00",
         responses: { m1: "yes", m2: "yes", m3: "yes", m4: "yes", m5: "no" },
+      },
+    ],
+  },
+  {
+    id: "p3",
+    groupId: "g2",
+    title: "연말 브런치",
+    hostId: "m6",
+    confirmedOptionId: "o6",
+    options: [
+      {
+        id: "o6",
+        date: "2026-12-12",
+        time: "11:00",
+        responses: { m1: "yes", m6: "yes", m7: "yes", m8: "yes" },
       },
     ],
   },

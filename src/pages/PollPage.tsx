@@ -1,22 +1,24 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import CandidateCard from "@/components/CandidateCard";
 import { CURRENT_USER_ID, groups, members, polls } from "@/data/dummy";
+import type { Poll } from "@/types/poll";
 import { countYes } from "@/utils/poll";
 
 function PollPage() {
-  const poll = polls[0];
+  const { pollId } = useParams();
+  const poll = polls.find((p) => p.id === pollId);
+
+  if (!poll) {
+    return <p className="p-5 text-plum">투표를 찾을 수 없어요.</p>;
+  }
+
+  return <PollView key={poll.id} poll={poll} />;
+}
+
+function PollView({ poll }: { poll: Poll }) {
   const [options, setOptions] = useState(poll.options);
-  const group = groups.find((g) => g.id === poll.groupId); // 그룹 이름용
-  const isHost = poll.hostId === CURRENT_USER_ID;
-  const maxYes = Math.max(...poll.options.map((o) => countYes(o, members)));
 
-  // 모든 후보에 아직 응답하지 않은 멤버
-  const notResponded = members.filter((m) =>
-    poll.options.every((o) => (o.responses[m.id] ?? "pending") === "pending"),
-  );
-
-  //  내 응답 바꾸기
   function handleRespond(optionId: string, value: "yes" | "no") {
     setOptions((prev) =>
       prev.map((o) => {
@@ -27,9 +29,19 @@ function PollPage() {
       }),
     );
   }
+
+  const group = groups.find((g) => g.id === poll.groupId);
+  // 이 투표가 속한 그룹의 멤버만
+  const pollMembers = members.filter((m) => group?.memberIds.includes(m.id));
+
+  const isHost = poll.hostId === CURRENT_USER_ID;
+  const maxYes = Math.max(...options.map((o) => countYes(o, pollMembers)));
+  const notResponded = pollMembers.filter((m) =>
+    options.every((o) => (o.responses[m.id] ?? "pending") === "pending"),
+  );
+
   return (
     <div className="mx-auto flex min-h-screen max-w-[390px] flex-col gap-5 bg-white px-5 pt-3 pb-10 text-plum">
-      {/* 1. 뒤로 가기 + 내가 만든 모임 */}
       <div className="flex items-center justify-between">
         <Link
           to={`/groups/${poll.groupId}`}
@@ -57,17 +69,15 @@ function PollPage() {
         )}
       </div>
 
-      {/* 2. 제목 */}
       <div className="flex flex-col gap-1.5">
         <h1 className="text-[30px] leading-tight font-extrabold tracking-tight">
           {poll.title}
         </h1>
         <p className="text-[15px] text-subtext">
-          {group?.name} · 후보 {poll.options.length}개 · 멤버 {members.length}명
+          {group?.name} · 후보 {options.length}개 · 멤버 {pollMembers.length}명
         </p>
       </div>
 
-      {/* 3. 미응답 안내 (있을 때만) */}
       {notResponded.length > 0 && (
         <div className="flex items-center gap-2.5 rounded-2xl bg-cream px-3.5 py-3 text-sm text-subtext">
           <svg
@@ -93,22 +103,22 @@ function PollPage() {
         </div>
       )}
 
-      {/* 후보 카드 */}
       <div className="flex flex-col gap-3.5">
         {options.map((option) => (
           <CandidateCard
             key={option.id}
             option={option}
-            members={members}
+            members={pollMembers}
             currentUserId={CURRENT_USER_ID}
-            isRecommended={maxYes > 0 && countYes(option, members) === maxYes}
+            isRecommended={
+              maxYes > 0 && countYes(option, pollMembers) === maxYes
+            }
             isHost={isHost}
             onRespond={(value) => handleRespond(option.id, value)}
           />
         ))}
       </div>
 
-      {/* 만든 사람이 아닐 때 안내 */}
       {!isHost && (
         <p className="text-center text-sm text-faint">
           시간 확정은 모임을 만든 사람만 할 수 있어요.
