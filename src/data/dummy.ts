@@ -16,7 +16,11 @@ export const members: Member[] = [
 ];
 
 export const groups: Group[] = [
-  { id: "g1", name: "대학 친구들", memberIds: ["m1", "m2", "m3", "m4", "m5"] },
+  {
+    id: "g1",
+    name: "대학 친구들",
+    memberIds: ["m1", "m2", "m3", "m4", "m5", "m7"],
+  },
   { id: "g2", name: "회사 동기", memberIds: ["m1", "m6", "m7", "m8"] },
   { id: "g3", name: "스터디 메이트", memberIds: ["m1", "m9", "m10"] },
 ];

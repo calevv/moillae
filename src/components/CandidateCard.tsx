@@ -92,7 +92,7 @@ export default function CandidateCard({
 
   const cardStyle = isRecommended
     ? "border-coral bg-white shadow-[0_8px_24px_rgba(242,139,102,0.28)]"
-    : "border-line bg-cream";
+    : "border-line bg-white";
 
   const responseButton = (value: "yes" | "no", label: string) => {
     const selected = myResponse === value;
@@ -132,29 +132,27 @@ export default function CandidateCard({
             {formatTime(option.time)}
           </span>
 
-          {(isRecommended || option.holiday) && (
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              {isRecommended && (
-                <span className="inline-flex h-[26px] items-center gap-1 rounded-full bg-coral px-2.5 text-[13px] font-bold">
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" />
-                  </svg>
-                  추천
-                </span>
-              )}
-              {option.holiday && (
-                <span className="inline-flex h-[26px] items-center rounded-full bg-holiday-bg px-2.5 text-[13px] font-bold text-holiday-text">
-                  공휴일 · {option.holiday}
-                </span>
-              )}
-            </div>
-          )}
+          <div className="mt-1 flex min-h-[26px] flex-wrap gap-1.5">
+            {isRecommended && (
+              <span className="inline-flex h-[26px] items-center gap-1 rounded-full bg-coral px-2.5 text-[13px] font-bold">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" />
+                </svg>
+                추천
+              </span>
+            )}
+            {option.holiday && (
+              <span className="inline-flex h-[26px] items-center rounded-full bg-holiday-bg px-2.5 text-[13px] font-bold text-holiday-text">
+                공휴일 · {option.holiday}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col items-end">

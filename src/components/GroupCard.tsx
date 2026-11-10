@@ -10,7 +10,7 @@ type GroupCardProps = {
   currentUserId: string;
 };
 
-const MAX_AVATARS = 4;
+const MAX_AVATARS = 5;
 
 export default function GroupCard({
   group,
