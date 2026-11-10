@@ -7,12 +7,17 @@ import { needsMyResponse } from "@/utils/poll";
 function HomePage() {
   const currentUserId = useCurrentUser();
   const groups = useGroups();
-  const myGroups = groups.filter((g) => g.memberIds.includes(currentUserId));
-
   const polls = usePolls();
   const memberMap = useMemberMap();
 
-  const pendingPolls = polls.filter((p) => needsMyResponse(p, currentUserId));
+  // 내가 속한 그룹만
+  const myGroups = groups.filter((g) => g.memberIds.includes(currentUserId));
+  const myGroupIds = new Set(myGroups.map((g) => g.id));
+
+  // 내 그룹의 투표 중 내 응답이 필요한 것
+  const pendingPolls = polls.filter(
+    (p) => myGroupIds.has(p.groupId) && needsMyResponse(p, currentUserId),
+  );
   const firstPending = pendingPolls[0];
 
   return (
@@ -65,8 +70,8 @@ function HomePage() {
                 바로 참여할 수 있어요.
               </p>
             </div>
-            <button
-              type="button"
+            <Link
+              to="/groups/new"
               className="flex h-[54px] items-center gap-2 rounded-full bg-coral px-8 text-[17px] font-bold"
             >
               <svg
@@ -82,7 +87,7 @@ function HomePage() {
                 <path d="M12 5v14M5 12h14" />
               </svg>
               첫 그룹 만들기
-            </button>
+            </Link>
           </div>
         ) : (
           <>
@@ -122,27 +127,28 @@ function HomePage() {
                 </svg>
               </Link>
             )}
+
+            <div className="flex flex-col gap-3">
+              {myGroups.map((group) => (
+                <GroupCard
+                  key={group.id}
+                  group={group}
+                  members={group.memberIds
+                    .map((id) => memberMap[id])
+                    .filter(Boolean)}
+                  polls={polls.filter((p) => p.groupId === group.id)}
+                  currentUserId={currentUserId}
+                />
+              ))}
+            </div>
           </>
         )}
-
-        <div className="flex flex-col gap-3">
-          {myGroups.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              members={group.memberIds
-                .map((id) => memberMap[id])
-                .filter(Boolean)}
-              polls={polls.filter((p) => p.groupId === group.id)}
-              currentUserId={currentUserId}
-            />
-          ))}
-        </div>
       </div>
+
       {myGroups.length > 0 && (
         <div className="sticky bottom-0 mt-4 bg-white px-5 pt-3 pb-7 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
-          <button
-            type="button"
+          <Link
+            to="/groups/new"
             className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"
           >
             <svg
@@ -158,7 +164,7 @@ function HomePage() {
               <path d="M12 5v14M5 12h14" />
             </svg>
             그룹 만들기
-          </button>
+          </Link>
         </div>
       )}
     </div>

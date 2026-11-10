@@ -35,3 +35,8 @@ export type NewPollInput = {
   hostId: string;
   options: { date: string; time: string }[];
 };
+
+export type NewGroupInput = {
+  name: string;
+  ownerId: string;
+};

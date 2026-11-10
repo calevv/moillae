@@ -1,4 +1,4 @@
-import type { Poll, VoteResponse } from "@/types/poll";
+import type { Group, Poll, VoteResponse } from "@/types/poll";
 
 // 응답 저장.
 export async function saveResponse(
@@ -25,4 +25,8 @@ export async function saveConfirmation(
 
 export async function savePoll(poll: Poll): Promise<void> {
   void poll;
+}
+
+export async function saveGroup(group: Group): Promise<void> {
+  void group;
 }

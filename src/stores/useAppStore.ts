@@ -1,10 +1,16 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { saveConfirmation, savePoll, saveResponse } from "@/api/polls";
 import { groups, members, polls } from "@/data/dummy";
+import {
+  saveConfirmation,
+  saveGroup,
+  savePoll,
+  saveResponse,
+} from "@/api/polls";
 import type {
   Group,
   Member,
+  NewGroupInput,
   NewPollInput,
   Poll,
   VoteResponse,
@@ -28,6 +34,7 @@ type AppState = {
     value: VoteResponse,
   ) => Promise<void>;
   createPoll: (input: NewPollInput) => Promise<string>;
+  createGroup: (input: NewGroupInput) => Promise<string>;
 };
 
 export const useAppStore = create<AppState>()(
@@ -134,6 +141,36 @@ export const useAppStore = create<AppState>()(
           }
 
           return poll.id;
+        },
+        createGroup: async (input) => {
+          const group: Group = {
+            id: crypto.randomUUID(),
+            name: input.name,
+            memberIds: [input.ownerId], // 만든 사람만 들어 있는 상태로 시작
+          };
+
+          set(
+            (s) => ({ groups: { ...s.groups, [group.id]: group } }),
+            undefined,
+            "group/create",
+          );
+
+          try {
+            await saveGroup(group);
+          } catch (error) {
+            set(
+              (s) => {
+                const rest = { ...s.groups };
+                delete rest[group.id];
+                return { groups: rest };
+              },
+              undefined,
+              "group/create:rollback",
+            );
+            throw error;
+          }
+
+          return group.id;
         },
       }),
       {
