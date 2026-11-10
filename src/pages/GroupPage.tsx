@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router";
 import PollSummaryCard from "@/components/PollSummaryCard";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useGroup, useGroupMembers, useGroupPolls } from "@/stores/selectors";
+import CopyInviteButton from "@/components/CopyInviteButton";
 
 function GroupPage() {
   const { groupId } = useParams();
@@ -13,7 +14,8 @@ function GroupPage() {
   if (!group) {
     return <p className="p-5 text-plum">그룹을 찾을 수 없어요.</p>;
   }
-
+  const isAlone = groupMembers.length <= 1; // 나 혼자인 그룹
+  const hasPolls = groupPolls.length > 0;
   return (
     <div className="mx-auto flex min-h-screen max-w-[390px] flex-col bg-white text-plum">
       <div className="flex flex-1 flex-col gap-[22px] px-5 pt-3">
@@ -47,60 +49,91 @@ function GroupPage() {
         </div>
 
         {/* 멤버 */}
-        <section className="flex flex-col gap-3.5">
-          <ul className="flex flex-wrap gap-2.5">
-            {groupMembers.map((m) => (
-              <li
-                key={m.id}
-                className="flex w-12 flex-col items-center gap-1.5"
-              >
-                <span className="flex size-12 items-center justify-center rounded-full bg-cream text-[17px] font-bold">
-                  {m.name.slice(0, 1)}
+        {isAlone ? (
+          <section className="flex flex-col gap-3.5 rounded-3xl bg-peach px-4 py-[18px]">
+            <div className="flex items-center gap-3">
+              <div className="flex shrink-0">
+                <span className="flex size-11 items-center justify-center rounded-full border-2 border-peach bg-white font-bold">
+                  나
                 </span>
-                <span className="text-[13px] font-medium">{m.name}</span>
-              </li>
-            ))}
-            <li className="flex w-12 flex-col items-center gap-1.5">
-              <button
-                type="button"
-                aria-label="멤버 초대"
-                className="flex size-12 items-center justify-center rounded-full border-[1.5px] border-dashed border-muted-line bg-white"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
+                <span
+                  className="-ml-2 flex size-11 items-center justify-center rounded-full border-2 border-dashed border-faint bg-peach"
                   aria-hidden="true"
                 >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </button>
-              <span className="text-[13px] font-medium text-subtext">초대</span>
-            </li>
-          </ul>
-          <button
-            type="button"
-            className="flex h-[50px] items-center justify-center gap-2 rounded-full border-[1.5px] border-plum bg-white text-base font-bold"
-          >
-            초대 링크 복사
-          </button>
-        </section>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </span>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[17px] font-extrabold tracking-tight">
+                  친구를 초대해 보세요
+                </span>
+                <span className="text-sm text-subtext">
+                  링크를 보내면 바로 참여할 수 있어요.
+                </span>
+              </div>
+            </div>
+            <CopyInviteButton groupId={group.id} variant="dark" />
+          </section>
+        ) : (
+          <section className="flex flex-col gap-3.5">
+            {/* 기존 멤버 목록 <ul> ... </ul> 그대로 */}
+            <CopyInviteButton groupId={group.id} />
+          </section>
+        )}
 
         {/* 모임 제안 */}
         <section className="flex flex-col gap-3">
           <h2 className="text-xl font-extrabold tracking-tight">모임 제안</h2>
-          {groupPolls.map((poll) => (
-            <PollSummaryCard
-              key={poll.id}
-              poll={poll}
-              members={groupMembers}
-              currentUserId={currentUserId}
-            />
-          ))}
+          {hasPolls ? (
+            groupPolls.map((poll) => (
+              <PollSummaryCard
+                key={poll.id}
+                poll={poll}
+                members={groupMembers}
+                currentUserId={currentUserId}
+              />
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2.5 rounded-3xl border-[1.5px] border-dashed border-muted-line p-6 text-center">
+              <span
+                className="flex size-14 items-center justify-center rounded-full bg-cream"
+                aria-hidden="true"
+              >
+                <svg
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="4" y="5.5" width="16" height="14" rx="3" />
+                  <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+                </svg>
+              </span>
+              <span className="text-lg font-extrabold tracking-tight">
+                아직 모임 제안이 없어요
+              </span>
+              <span className="text-sm leading-relaxed text-subtext">
+                후보 시간을 여러 개 올리면
+                <br />
+                친구들이 가능한 시간에 투표해요.
+              </span>
+            </div>
+          )}
         </section>
       </div>
 
@@ -122,7 +155,7 @@ function GroupPage() {
           >
             <path d="M12 5v14M5 12h14" />
           </svg>
-          새 모임 제안
+          {hasPolls ? "새 모임 제안" : "첫 모임 제안하기"}
         </Link>
       </div>
     </div>

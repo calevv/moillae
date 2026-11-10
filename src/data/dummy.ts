@@ -23,6 +23,7 @@ export const groups: Group[] = [
   },
   { id: "g2", name: "회사 동기", memberIds: ["m1", "m6", "m7", "m8"] },
   { id: "g3", name: "스터디 메이트", memberIds: ["m1", "m9", "m10"] },
+  { id: "g4", name: "새 모임방", memberIds: ["m1"] },
 ];
 export const polls: Poll[] = [
   {

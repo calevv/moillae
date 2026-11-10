@@ -138,7 +138,7 @@ export const useAppStore = create<AppState>()(
       }),
       {
         name: "moillae-store", // localStorage에 저장될 이름
-        version: 1,
+        version: 2,
         partialize: (s) => ({
           members: s.members,
           groups: s.groups,
