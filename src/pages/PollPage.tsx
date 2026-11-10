@@ -1,40 +1,37 @@
-import { useState } from "react";
 import { Link, useParams } from "react-router";
 import CandidateCard from "@/components/CandidateCard";
-import { CURRENT_USER_ID, groups, members, polls } from "@/data/dummy";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useGroup, useGroupMembers, usePoll } from "@/stores/selectors";
+import { useAppStore } from "@/stores/useAppStore";
 import type { Poll } from "@/types/poll";
 import { countYes } from "@/utils/poll";
 
 function PollPage() {
   const { pollId } = useParams();
-  const poll = polls.find((p) => p.id === pollId);
+  const poll = usePoll(pollId);
 
   if (!poll) {
     return <p className="p-5 text-plum">투표를 찾을 수 없어요.</p>;
   }
 
-  return <PollView key={poll.id} poll={poll} />;
+  return <PollView poll={poll} />;
 }
 
 function PollView({ poll }: { poll: Poll }) {
-  const [options, setOptions] = useState(poll.options);
+  const currentUserId = useCurrentUser();
+  const setResponse = useAppStore((s) => s.setResponse);
+  const group = useGroup(poll.groupId);
+  const pollMembers = useGroupMembers(poll.groupId);
 
   function handleRespond(optionId: string, value: "yes" | "no") {
-    setOptions((prev) =>
-      prev.map((o) => {
-        if (o.id !== optionId) return o;
-        const current = o.responses[CURRENT_USER_ID] ?? "pending";
-        const next = current === value ? "pending" : value;
-        return { ...o, responses: { ...o.responses, [CURRENT_USER_ID]: next } };
-      }),
-    );
+    const option = poll.options.find((o) => o.id === optionId);
+    const current = option?.responses[currentUserId] ?? "pending";
+    const next = current === value ? "pending" : value;
+    void setResponse(poll.id, optionId, currentUserId, next);
   }
 
-  const group = groups.find((g) => g.id === poll.groupId);
-  // 이 투표가 속한 그룹의 멤버만
-  const pollMembers = members.filter((m) => group?.memberIds.includes(m.id));
-
-  const isHost = poll.hostId === CURRENT_USER_ID;
+  const options = poll.options;
+  const isHost = poll.hostId === currentUserId;
   const maxYes = Math.max(...options.map((o) => countYes(o, pollMembers)));
   const notResponded = pollMembers.filter((m) =>
     options.every((o) => (o.responses[m.id] ?? "pending") === "pending"),
@@ -109,7 +106,7 @@ function PollView({ poll }: { poll: Poll }) {
             key={option.id}
             option={option}
             members={pollMembers}
-            currentUserId={CURRENT_USER_ID}
+            currentUserId={currentUserId}
             isRecommended={
               maxYes > 0 && countYes(option, pollMembers) === maxYes
             }
