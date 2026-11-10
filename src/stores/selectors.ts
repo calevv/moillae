@@ -24,3 +24,13 @@ export const useGroupMembers = (groupId?: string) =>
       return group.memberIds.map((id) => s.members[id]).filter(Boolean);
     }),
   );
+
+//  Object.values는 새 배열을 만듦 → useShallow
+export const useGroups = () =>
+  useAppStore(useShallow((s) => Object.values(s.groups)));
+
+export const usePolls = () =>
+  useAppStore(useShallow((s) => Object.values(s.polls)));
+
+//  저장된 객체를 그대로 꺼냄
+export const useMemberMap = () => useAppStore((s) => s.members);

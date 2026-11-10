@@ -1,17 +1,18 @@
 import { Link, useParams } from "react-router";
 import PollSummaryCard from "@/components/PollSummaryCard";
-import { CURRENT_USER_ID, groups, members, polls } from "@/data/dummy";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useGroup, useGroupMembers, useGroupPolls } from "@/stores/selectors";
 
 function GroupPage() {
   const { groupId } = useParams();
-  const group = groups.find((g) => g.id === groupId);
+  const currentUserId = useCurrentUser();
+  const group = useGroup(groupId);
+  const groupMembers = useGroupMembers(groupId);
+  const groupPolls = useGroupPolls(groupId);
 
   if (!group) {
     return <p className="p-5 text-plum">그룹을 찾을 수 없어요.</p>;
   }
-
-  const groupMembers = members.filter((m) => group.memberIds.includes(m.id));
-  const groupPolls = polls.filter((p) => p.groupId === group.id);
 
   return (
     <div className="mx-auto flex min-h-screen max-w-[390px] flex-col bg-white text-plum">
@@ -97,7 +98,7 @@ function GroupPage() {
               key={poll.id}
               poll={poll}
               members={groupMembers}
-              currentUserId={CURRENT_USER_ID}
+              currentUserId={currentUserId}
             />
           ))}
         </section>

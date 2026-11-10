@@ -1,10 +1,16 @@
 import { Link } from "react-router";
 import GroupCard from "@/components/GroupCard";
-import { CURRENT_USER_ID, groups, members, polls } from "@/data/dummy";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useGroups, useMemberMap, usePolls } from "@/stores/selectors";
 import { needsMyResponse } from "@/utils/poll";
 
 function HomePage() {
-  const pendingPolls = polls.filter((p) => needsMyResponse(p, CURRENT_USER_ID));
+  const currentUserId = useCurrentUser();
+  const groups = useGroups();
+  const polls = usePolls();
+  const memberMap = useMemberMap();
+
+  const pendingPolls = polls.filter((p) => needsMyResponse(p, currentUserId));
   const firstPending = pendingPolls[0];
 
   return (
@@ -70,9 +76,11 @@ function HomePage() {
             <GroupCard
               key={group.id}
               group={group}
-              members={members.filter((m) => group.memberIds.includes(m.id))}
+              members={group.memberIds
+                .map((id) => memberMap[id])
+                .filter(Boolean)}
               polls={polls.filter((p) => p.groupId === group.id)}
-              currentUserId={CURRENT_USER_ID}
+              currentUserId={currentUserId}
             />
           ))}
         </div>
