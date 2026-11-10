@@ -27,3 +27,11 @@ export type Poll = {
   confirmedOptionId?: string;
   options: TimeOption[];
 };
+
+// 입력 타입
+export type NewPollInput = {
+  groupId: string;
+  title: string;
+  hostId: string;
+  options: { date: string; time: string }[];
+};

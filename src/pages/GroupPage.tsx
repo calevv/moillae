@@ -106,8 +106,8 @@ function GroupPage() {
 
       {/* 하단 고정 버튼 */}
       <div className="sticky bottom-0 mt-4 bg-white px-5 pt-3 pb-7 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
-        <button
-          type="button"
+        <Link
+          to={`/groups/${group.id}/polls/new`}
           className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"
         >
           <svg
@@ -123,7 +123,7 @@ function GroupPage() {
             <path d="M12 5v14M5 12h14" />
           </svg>
           새 모임 제안
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { VoteResponse } from "@/types/poll";
+import type { Poll, VoteResponse } from "@/types/poll";
 
 // 응답 저장.
 export async function saveResponse(
@@ -21,4 +21,8 @@ export async function saveConfirmation(
 ): Promise<void> {
   void pollId;
   void optionId;
+}
+
+export async function savePoll(poll: Poll): Promise<void> {
+  void poll;
 }

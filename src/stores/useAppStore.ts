@@ -1,8 +1,15 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { saveConfirmation, saveResponse } from "@/api/polls";
+import { saveConfirmation, savePoll, saveResponse } from "@/api/polls";
 import { groups, members, polls } from "@/data/dummy";
-import type { Group, Member, Poll, VoteResponse } from "@/types/poll";
+import type {
+  Group,
+  Member,
+  NewPollInput,
+  Poll,
+  VoteResponse,
+} from "@/types/poll";
+import { getHoliday } from "@/utils/holiday";
 
 // 배열을 { id: 항목 } 객체로 바꾸기
 function toRecord<T extends { id: string }>(items: T[]): Record<string, T> {
@@ -20,6 +27,7 @@ type AppState = {
     userId: string,
     value: VoteResponse,
   ) => Promise<void>;
+  createPoll: (input: NewPollInput) => Promise<string>;
 };
 
 export const useAppStore = create<AppState>()(
@@ -84,6 +92,48 @@ export const useAppStore = create<AppState>()(
             );
             throw error;
           }
+        },
+        createPoll: async (input) => {
+          const poll: Poll = {
+            id: crypto.randomUUID(),
+            groupId: input.groupId,
+            title: input.title,
+            hostId: input.hostId,
+            options: input.options
+              .map((o) => ({
+                id: crypto.randomUUID(),
+                date: o.date,
+                time: o.time,
+                holiday: getHoliday(o.date),
+                responses: {},
+              }))
+              .sort((a, b) =>
+                `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`),
+              ),
+          };
+
+          set(
+            (s) => ({ polls: { ...s.polls, [poll.id]: poll } }),
+            undefined,
+            "poll/create",
+          );
+
+          try {
+            await savePoll(poll);
+          } catch (error) {
+            set(
+              (s) => {
+                const rest = { ...s.polls };
+                delete rest[poll.id];
+                return { polls: rest };
+              },
+              undefined,
+              "poll/create:rollback",
+            );
+            throw error;
+          }
+
+          return poll.id;
         },
       }),
       {
