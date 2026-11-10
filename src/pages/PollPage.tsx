@@ -5,6 +5,7 @@ import { useGroup, useGroupMembers, usePoll } from "@/stores/selectors";
 import { useAppStore } from "@/stores/useAppStore";
 import type { Poll } from "@/types/poll";
 import { countYes } from "@/utils/poll";
+import ConfirmedPoll from "@/components/ConfirmedPoll";
 
 function PollPage() {
   const { pollId } = useParams();
@@ -14,12 +15,23 @@ function PollPage() {
     return <p className="p-5 text-plum">투표를 찾을 수 없어요.</p>;
   }
 
+  if (poll.confirmedOptionId) {
+    return <ConfirmedPoll poll={poll} />;
+  }
+
   return <PollView poll={poll} />;
 }
 
 function PollView({ poll }: { poll: Poll }) {
   const currentUserId = useCurrentUser();
   const setResponse = useAppStore((s) => s.setResponse);
+  const confirmPoll = useAppStore((s) => s.confirmPoll);
+
+  function handleConfirm(optionId: string) {
+    if (!window.confirm("이 시간으로 확정할까요? 확정하면 투표가 마감돼요."))
+      return;
+    void confirmPoll(poll.id, optionId);
+  }
   const group = useGroup(poll.groupId);
   const pollMembers = useGroupMembers(poll.groupId);
 
@@ -112,6 +124,7 @@ function PollView({ poll }: { poll: Poll }) {
             }
             isHost={isHost}
             onRespond={(value) => handleRespond(option.id, value)}
+            onConfirm={() => handleConfirm(option.id)}
           />
         ))}
       </div>

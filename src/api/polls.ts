@@ -13,3 +13,12 @@ export async function saveResponse(
   void userId;
   void value;
 }
+
+// 확정 저장. 나중에 Supabase 코드로 바꿈
+export async function saveConfirmation(
+  pollId: string,
+  optionId: string,
+): Promise<void> {
+  void pollId;
+  void optionId;
+}

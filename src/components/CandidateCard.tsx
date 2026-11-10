@@ -9,6 +9,7 @@ type CandidateCardProps = {
   isRecommended: boolean;
   isHost: boolean;
   onRespond: (value: "yes" | "no") => void;
+  onConfirm: () => void;
 };
 
 const STATUS_LABEL: Record<VoteResponse, string> = {
@@ -86,6 +87,7 @@ export default function CandidateCard({
   isRecommended,
   isHost,
   onRespond,
+  onConfirm,
 }: CandidateCardProps) {
   const yesCount = countYes(option, members);
   const myResponse = option.responses[currentUserId] ?? "pending";
@@ -209,6 +211,7 @@ export default function CandidateCard({
       {isHost && (
         <button
           type="button"
+          onClick={onConfirm}
           className={`h-[52px] rounded-full text-base font-bold ${
             isRecommended
               ? "bg-plum text-white"

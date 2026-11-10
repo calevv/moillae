@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { saveResponse } from "@/api/polls";
+import { saveConfirmation, saveResponse } from "@/api/polls";
 import { groups, members, polls } from "@/data/dummy";
 import type { Group, Member, Poll, VoteResponse } from "@/types/poll";
 
@@ -13,6 +13,7 @@ type AppState = {
   members: Record<string, Member>;
   groups: Record<string, Group>;
   polls: Record<string, Poll>;
+  confirmPoll: (pollId: string, optionId: string) => Promise<void>;
   setResponse: (
     pollId: string,
     optionId: string,
@@ -58,6 +59,28 @@ export const useAppStore = create<AppState>()(
               (s) => ({ polls: { ...s.polls, [pollId]: before } }),
               undefined,
               "poll/setResponse:rollback",
+            );
+            throw error;
+          }
+        },
+        confirmPoll: async (pollId, optionId) => {
+          const before = get().polls[pollId];
+          if (!before) return;
+
+          const after: Poll = { ...before, confirmedOptionId: optionId };
+          set(
+            (s) => ({ polls: { ...s.polls, [pollId]: after } }),
+            undefined,
+            "poll/confirm",
+          );
+
+          try {
+            await saveConfirmation(pollId, optionId);
+          } catch (error) {
+            set(
+              (s) => ({ polls: { ...s.polls, [pollId]: before } }),
+              undefined,
+              "poll/confirm:rollback",
             );
             throw error;
           }
