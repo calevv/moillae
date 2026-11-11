@@ -4,6 +4,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useGroups, useMemberMap, usePolls } from "@/stores/selectors";
 import { needsMyResponse } from "@/utils/poll";
 import BottomNav from "@/components/BottomNav";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 function HomePage() {
   const currentUserId = useCurrentUser();
@@ -21,21 +22,33 @@ function HomePage() {
   );
   const firstPending = pendingPolls[0];
 
+  const signOut = useAuthStore((s) => s.signOut);
   return (
     <div className="mx-auto flex min-h-screen max-w-[390px] flex-col bg-white text-plum">
       <div className="flex flex-1 flex-col gap-5 px-5 pt-5">
-        <div className="flex h-11 items-center gap-2">
-          <svg width="32" height="26" viewBox="0 0 40 32" aria-hidden="true">
-            <circle cx="14" cy="16" r="13" className="fill-coral" />
-            <circle
-              cx="26"
-              cy="16"
-              r="13"
-              className="fill-plum"
-              fillOpacity="0.88"
-            />
-          </svg>
-          <span className="text-xl font-extrabold tracking-tight">모일래</span>
+        <div className="flex h-11 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg width="32" height="26" viewBox="0 0 40 32" aria-hidden="true">
+              <circle cx="14" cy="16" r="13" className="fill-coral" />
+              <circle
+                cx="26"
+                cy="16"
+                r="13"
+                className="fill-plum"
+                fillOpacity="0.88"
+              />
+            </svg>
+            <span className="text-xl font-extrabold tracking-tight">
+              모일래
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="min-h-11 px-2 text-sm text-subtext"
+          >
+            로그아웃
+          </button>
         </div>
 
         <h1 className="text-[30px] leading-tight font-extrabold tracking-tight">

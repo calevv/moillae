@@ -1,6 +1,6 @@
-import { CURRENT_USER_ID } from "@/data/dummy";
+import { useAuthStore } from "@/stores/useAuthStore";
 
-// 나중에 로그인 정보에서 꺼내도록 이 안쪽만 바꿈
+// 로그인한 사용자 id (데모면 "m1")
 export function useCurrentUser() {
-  return CURRENT_USER_ID;
+  return useAuthStore((s) => s.userId) ?? "";
 }
