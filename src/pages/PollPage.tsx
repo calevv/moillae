@@ -30,7 +30,9 @@ function PollView({ poll }: { poll: Poll }) {
   function handleConfirm(optionId: string) {
     if (!window.confirm("이 시간으로 확정할까요? 확정하면 투표가 마감돼요."))
       return;
-    void confirmPoll(poll.id, optionId);
+    confirmPoll(poll.id, optionId).catch(() => {
+      alert("확정하지 못했어요. 잠시 후 다시 시도해 주세요.");
+    });
   }
   const group = useGroup(poll.groupId);
   const pollMembers = useGroupMembers(poll.groupId);
@@ -39,7 +41,9 @@ function PollView({ poll }: { poll: Poll }) {
     const option = poll.options.find((o) => o.id === optionId);
     const current = option?.responses[currentUserId] ?? "pending";
     const next = current === value ? "pending" : value;
-    void setResponse(poll.id, optionId, currentUserId, next);
+    setResponse(poll.id, optionId, currentUserId, next).catch(() => {
+      alert("저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
+    });
   }
 
   const options = poll.options;

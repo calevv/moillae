@@ -28,6 +28,8 @@ function CreateGroupPage() {
         ownerId: currentUserId,
       });
       navigate(`/groups/${groupId}`, { replace: true });
+    } catch {
+      alert("그룹을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
     } finally {
       setSubmitting(false);
     }

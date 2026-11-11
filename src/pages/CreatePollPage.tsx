@@ -71,6 +71,8 @@ function CreatePollPage() {
         options: drafts.map((d) => ({ date: d.date, time: d.time })),
       });
       navigate(`/groups/${group.id}/polls/${pollId}`, { replace: true });
+    } catch {
+      alert("모임을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
     } finally {
       setSubmitting(false);
     }
