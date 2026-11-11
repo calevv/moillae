@@ -3,6 +3,7 @@ import GroupCard from "@/components/GroupCard";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useGroups, useMemberMap, usePolls } from "@/stores/selectors";
 import { needsMyResponse } from "@/utils/poll";
+import BottomNav from "@/components/BottomNav";
 
 function HomePage() {
   const currentUserId = useCurrentUser();
@@ -145,8 +146,8 @@ function HomePage() {
         )}
       </div>
 
-      {myGroups.length > 0 && (
-        <div className="sticky bottom-0 mt-4 bg-white px-5 pt-3 pb-7 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
+      <div className="sticky bottom-0 mt-4 flex flex-col gap-3 bg-white px-5 pt-3 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
+        {myGroups.length > 0 && (
           <Link
             to="/groups/new"
             className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"
@@ -165,8 +166,9 @@ function HomePage() {
             </svg>
             그룹 만들기
           </Link>
-        </div>
-      )}
+        )}
+        <BottomNav />
+      </div>
     </div>
   );
 }

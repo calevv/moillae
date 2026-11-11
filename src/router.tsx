@@ -5,7 +5,8 @@ import GroupPage from "@/pages/GroupPage";
 import PollPage from "@/pages/PollPage";
 import LandingPage from "@/pages/LandingPage";
 import CreatePollPage from "@/pages/CreatePollPage";
-import CreateGroupPage from "./pages/CreateGroupPage";
+import CreateGroupPage from "@/pages/CreateGroupPage";
+import CalendarPage from "@/pages/CalendarPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
       { path: "groups/:groupId/polls/:pollId", element: <PollPage /> },
       { path: "groups/:groupId/polls/new", element: <CreatePollPage /> },
       { path: "groups/new", element: <CreateGroupPage /> },
+      { path: "calendar", element: <CalendarPage /> },
     ],
   },
 ]);
