@@ -18,7 +18,12 @@ type AuthState = {
   profile: Profile | null;
   startAuthListener: () => () => void;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
+  signUp: (
+    name: string,
+    email: string,
+    password: string,
+    next?: string,
+  ) => Promise<void>;
   signOut: () => Promise<void>;
   enterDemo: () => void;
 };
@@ -64,16 +69,15 @@ export const useAuthStore = create<AuthState>()((set, get) => {
       }
     },
 
-    signUp: async (name, email, password) => {
+    signUp: async (name, email, password, next) => {
       set({ status: "loading" });
       try {
-        await signUpWithEmail(name, email, password);
+        await signUpWithEmail(name, email, password, next);
       } catch (error) {
         set(signedOut);
         throw error;
       }
     },
-
     signOut: async () => {
       if (get().status === "demo") {
         set(signedOut);

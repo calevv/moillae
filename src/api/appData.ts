@@ -10,7 +10,7 @@ import { toDateKey } from "@/utils/calendar";
 import { getHoliday } from "@/utils/holiday";
 
 type ProfileRow = { id: string; display_name: string };
-type GroupRow = { id: string; name: string };
+type GroupRow = { id: string; name: string; invite_code: string };
 type GroupMemberRow = { group_id: string; user_id: string };
 type PollRow = {
   id: string;
@@ -51,7 +51,7 @@ export async function fetchAppData(): Promise<AppData> {
     responsesRes,
   ] = await Promise.all([
     supabase.from("profiles").select("id, display_name"),
-    supabase.from("groups").select("id, name").order("created_at"),
+    supabase.from("groups").select("id, name, invite_code").order("created_at"),
     supabase
       .from("group_members")
       .select("group_id, user_id")
@@ -98,10 +98,14 @@ export async function fetchAppData(): Promise<AppData> {
   const groups: Record<string, Group> = Object.fromEntries(
     groupRows.map((g) => [
       g.id,
-      { id: g.id, name: g.name, memberIds: memberIdsByGroup[g.id] ?? [] },
+      {
+        id: g.id,
+        name: g.name,
+        memberIds: memberIdsByGroup[g.id] ?? [],
+        inviteCode: g.invite_code,
+      },
     ]),
   );
-
   // 응답: 후보별로 { 멤버id: "yes" | "no" }
   const responsesByOption: Record<string, Record<string, VoteResponse>> = {};
   for (const r of responseRows)

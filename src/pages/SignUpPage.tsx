@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { Link, Navigate, useLocation } from "react-router";
+import { Link, Navigate } from "react-router";
 import { authErrorMessage } from "@/api/auth";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useNextPath } from "@/hooks/useNextPath";
+import { withNext } from "@/utils/next";
 
 const inputStyle =
   "h-14 w-full rounded-2xl border-[1.5px] border-muted-line bg-white px-4 text-[17px] font-medium outline-none focus:border-plum";
@@ -11,7 +13,8 @@ const MAX_NAME = 20;
 function SignUpPage() {
   const status = useAuthStore((s) => s.status);
   const signUp = useAuthStore((s) => s.signUp);
-  const location = useLocation();
+
+  const next = useNextPath();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,7 +22,7 @@ function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (status === "signedIn") return <Navigate to="/home" replace />;
+  if (status === "signedIn") return <Navigate to={next ?? "/home"} replace />;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -30,7 +33,7 @@ function SignUpPage() {
 
     setError(null);
     try {
-      await signUp(name.trim(), email, password);
+      await signUp(name.trim(), email, password, next ?? "/home");
     } catch (err) {
       setError(authErrorMessage(err));
     }
@@ -42,8 +45,7 @@ function SignUpPage() {
       className="mx-auto flex min-h-screen max-w-[390px] flex-col gap-[22px] bg-white px-5 pt-3 pb-7 text-plum"
     >
       <Link
-        to="/login/email"
-        state={location.state}
+        to={withNext("/login/email", next)}
         aria-label="뒤로 가기"
         className="-ml-2.5 flex size-11 items-center justify-center"
       >
@@ -154,8 +156,7 @@ function SignUpPage() {
       <div className="flex items-center justify-center gap-1 text-[15px] text-subtext">
         <span>이미 계정이 있나요?</span>
         <Link
-          to="/login/email"
-          state={location.state}
+          to={withNext("/login/email", next)}
           className="min-h-11 px-1.5 font-bold text-plum underline underline-offset-[3px] inline-flex items-center"
         >
           로그인

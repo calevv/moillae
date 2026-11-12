@@ -1,14 +1,16 @@
-import { Link, Navigate, useLocation, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
+import { useNextPath } from "@/hooks/useNextPath";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { withNext } from "@/utils/next";
 
 function LoginPage() {
   const status = useAuthStore((s) => s.status);
   const enterDemo = useAuthStore((s) => s.enterDemo);
   const navigate = useNavigate();
-  const location = useLocation();
+  const next = useNextPath(); // 로그인 후 돌아갈 곳 (없으면 null)
 
-  if (status === "signedIn" || status === "demo")
-    return <Navigate to="/home" replace />;
+  if (status === "signedIn") return <Navigate to={next ?? "/home"} replace />;
+  if (status === "demo") return <Navigate to="/home" replace />;
 
   function handleDemo() {
     enterDemo();
@@ -71,8 +73,7 @@ function LoginPage() {
         </div>
 
         <Link
-          to="/login/email"
-          state={location.state}
+          to={withNext("/login/email", next)}
           className="flex h-[54px] items-center justify-center rounded-full border-[1.5px] border-plum bg-white text-[17px] font-bold"
         >
           이메일로 계속하기

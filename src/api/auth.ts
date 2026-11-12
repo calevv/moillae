@@ -57,15 +57,19 @@ export async function signUpWithEmail(
   name: string,
   email: string,
   password: string,
+  next = "/home",
 ) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { display_name: name } }, // 프로필 만들 때 이 이름을 써요
+    options: {
+      data: { display_name: name },
+      // 이메일 인증을 켜면, 인증 메일의 링크가 이 주소로 돌아와요 (지금은 꺼져 있어서 준비만)
+      emailRedirectTo: `${window.location.origin}${next}`,
+    },
   });
   if (error) throw error;
 }
-
 export async function signOutFromSupabase() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;

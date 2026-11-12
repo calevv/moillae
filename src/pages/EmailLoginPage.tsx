@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { Link, Navigate, useLocation } from "react-router";
+import { Link, Navigate } from "react-router";
+import { useNextPath } from "@/hooks/useNextPath";
+import { withNext } from "@/utils/next";
 import { authErrorMessage } from "@/api/auth";
 import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -9,17 +11,15 @@ const inputStyle =
 function EmailLoginPage() {
   const status = useAuthStore((s) => s.status);
   const signIn = useAuthStore((s) => s.signIn);
-  const location = useLocation();
-  const from =
-    (location.state as { from?: { pathname: string } } | null)?.from
-      ?.pathname ?? "/home";
+
+  const next = useNextPath();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  if (status === "signedIn") return <Navigate to={from} replace />;
+  // 이동
+  if (status === "signedIn") return <Navigate to={next ?? "/home"} replace />;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -41,8 +41,7 @@ function EmailLoginPage() {
       className="mx-auto flex min-h-screen max-w-[390px] flex-col gap-[22px] bg-white px-5 pt-3 pb-7 text-plum"
     >
       <Link
-        to="/login"
-        state={location.state}
+        to={withNext("/login", next)}
         aria-label="뒤로 가기"
         className="-ml-2.5 flex size-11 items-center justify-center"
       >
@@ -120,8 +119,7 @@ function EmailLoginPage() {
       <div className="flex items-center justify-center gap-1 text-[15px] text-subtext">
         <span>계정이 없나요?</span>
         <Link
-          to="/signup"
-          state={location.state}
+          to={withNext("/signup", next)}
           className="min-h-11 px-1.5 font-bold text-plum underline underline-offset-[3px] inline-flex items-center"
         >
           회원가입

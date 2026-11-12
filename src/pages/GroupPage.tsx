@@ -83,12 +83,33 @@ function GroupPage() {
                 </span>
               </div>
             </div>
-            <CopyInviteButton groupId={group.id} variant="dark" />
+            <CopyInviteButton
+              groupId={group.id}
+              inviteCode={group.inviteCode}
+              variant="dark"
+            />
           </section>
         ) : (
           <section className="flex flex-col gap-3.5">
-            {/* 기존 멤버 목록 <ul> ... </ul> 그대로 */}
-            <CopyInviteButton groupId={group.id} />
+            <ul className="flex flex-wrap gap-2.5">
+              {groupMembers.map((m) => (
+                <li
+                  key={m.id}
+                  className="flex w-12 flex-col items-center gap-1.5"
+                >
+                  <span className="flex size-12 items-center justify-center rounded-full bg-cream text-[17px] font-bold">
+                    {m.name.slice(0, 1)}
+                  </span>
+                  <span className="w-full truncate text-center text-[13px] font-medium">
+                    {m.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <CopyInviteButton
+              groupId={group.id}
+              inviteCode={group.inviteCode}
+            />
           </section>
         )}
 

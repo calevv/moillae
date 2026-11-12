@@ -33,6 +33,7 @@ type AppState = {
   loadFromServer: () => Promise<void>;
   loadDemo: () => void;
   resetData: () => void;
+  reloadData: () => Promise<void>;
   confirmPoll: (pollId: string, optionId: string) => Promise<void>;
   setResponse: (
     pollId: string,
@@ -90,6 +91,14 @@ export const useAppStore = create<AppState>()(
       resetData: () => {
         loadSeq++;
         set({ ...empty, dataStatus: "idle" }, undefined, "data/reset");
+      },
+
+      // 화면을 "불러오는 중"으로 바꾸지 않고 조용히 다시 받기 (초대 참여 후 등)
+      reloadData: async () => {
+        const seq = ++loadSeq;
+        const data = await fetchAppData(); // 실패하면 에러가 그대로 위로 가요
+        if (seq !== loadSeq) return;
+        set({ ...data, dataStatus: "ready" }, undefined, "data/reload");
       },
 
       setResponse: async (pollId, optionId, userId, value) => {
@@ -202,7 +211,22 @@ export const useAppStore = create<AppState>()(
         );
 
         try {
-          await saveGroup(group);
+          const inviteCode = await saveGroup(group);
+          if (inviteCode) {
+            set(
+              (s) =>
+                s.groups[group.id]
+                  ? {
+                      groups: {
+                        ...s.groups,
+                        [group.id]: { ...s.groups[group.id], inviteCode },
+                      },
+                    }
+                  : {},
+              undefined,
+              "group/create:inviteCode",
+            );
+          }
         } catch (error) {
           set(
             (s) => {

@@ -11,6 +11,7 @@ import PollPage from "@/pages/PollPage";
 import EmailLoginPage from "@/pages/EmailLoginPage";
 import LoginPage from "@/pages/LoginPage";
 import SignUpPage from "@/pages/SignUpPage";
+import InvitePage from "@/pages/InvitePage";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: "login", element: <LoginPage /> },
       { path: "login/email", element: <EmailLoginPage /> },
       { path: "signup", element: <SignUpPage /> },
+      { path: "invite/:code", element: <InvitePage /> },
 
       // 로그인(또는 데모)해야 볼 수 있는 화면
       {

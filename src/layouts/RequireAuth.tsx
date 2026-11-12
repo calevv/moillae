@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useAppStore } from "@/stores/useAppStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { withNext } from "@/utils/next";
 
 function RequireAuth() {
   const status = useAuthStore((s) => s.status);
@@ -9,7 +10,13 @@ function RequireAuth() {
   const location = useLocation();
 
   if (status === "signedOut") {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    // 돌아올 곳을 주소에 담아서 로그인 화면으로
+    return (
+      <Navigate
+        to={withNext("/login", location.pathname + location.search)}
+        replace
+      />
+    );
   }
   if (dataStatus === "error") {
     return (

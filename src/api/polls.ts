@@ -29,17 +29,15 @@ export async function saveResponse(
     return;
   }
 
-  const { error } = await supabase
-    .from("responses")
-    .upsert(
-      {
-        option_id: optionId,
-        user_id: userId,
-        value,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "option_id,user_id" },
-    );
+  const { error } = await supabase.from("responses").upsert(
+    {
+      option_id: optionId,
+      user_id: userId,
+      value,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "option_id,user_id" },
+  );
   if (error) throw error;
 }
 
@@ -81,4 +79,48 @@ export async function saveGroup(group: Group): Promise<string | null> {
   });
   if (error) throw error;
   return data as string;
+}
+
+// 초대 코드로 그룹 참여. 참여한 그룹 id를 돌려줘요 (이미 멤버여도 그 그룹 id)
+export async function joinGroupByCode(code: string): Promise<string> {
+  const { data, error } = await supabase.rpc("join_group_by_code", {
+    p_code: code,
+  });
+  if (error) {
+    if (error.message.includes("invalid_invite_code"))
+      throw new Error("invalid_invite_code");
+    throw error;
+  }
+  return data as string;
+}
+
+export type InvitePreview = {
+  groupId: string;
+  groupName: string;
+  memberCount: number;
+  isMember: boolean;
+};
+
+type InvitePreviewRow = {
+  group_id: string;
+  group_name: string;
+  member_count: number;
+  is_member: boolean;
+};
+
+// 초대 코드로 그룹 이름, 인원, 내가 멤버인지 미리 보기 (로그인 안 해도 됨)
+export async function getInvitePreview(
+  code: string,
+): Promise<InvitePreview | null> {
+  const { data, error } = await supabase
+    .rpc("get_invite_preview", { p_code: code })
+    .maybeSingle<InvitePreviewRow>();
+  if (error) throw error;
+  if (!data) return null; // 없는 코드
+  return {
+    groupId: data.group_id,
+    groupName: data.group_name,
+    memberCount: data.member_count,
+    isMember: data.is_member,
+  };
 }
