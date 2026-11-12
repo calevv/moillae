@@ -17,7 +17,7 @@ function GroupPage() {
   const isAlone = groupMembers.length <= 1; // 나 혼자인 그룹
   const hasPolls = groupPolls.length > 0;
   return (
-    <div className="mx-auto flex min-h-screen max-w-[390px] flex-col bg-white text-plum">
+    <div className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col gap-[22px] px-5 pt-3">
         <Link
           to="/home"
@@ -158,8 +158,8 @@ function GroupPage() {
         </section>
       </div>
 
-      {/* 하단 고정 버튼 */}
-      <div className="sticky bottom-0 mt-4 bg-white px-5 pt-3 pb-7 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
+      {/* 하단 고정 버튼 (탭 바로 위) */}
+      <div className="sticky bottom-tab-bar mt-4 bg-white px-5 py-3 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
         <Link
           to={`/groups/${group.id}/polls/new`}
           className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"

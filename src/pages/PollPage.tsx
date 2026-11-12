@@ -54,7 +54,7 @@ function PollView({ poll }: { poll: Poll }) {
   );
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-[390px] flex-col gap-5 bg-white px-5 pt-3 pb-10 text-plum">
+    <div className="flex flex-1 flex-col gap-5 px-5 pt-3 pb-10">
       <div className="flex items-center justify-between">
         <Link
           to={`/groups/${poll.groupId}`}

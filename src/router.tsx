@@ -12,6 +12,7 @@ import EmailLoginPage from "@/pages/EmailLoginPage";
 import LoginPage from "@/pages/LoginPage";
 import SignUpPage from "@/pages/SignUpPage";
 import InvitePage from "@/pages/InvitePage";
+import TabLayout from "./layouts/TabLayout";
 
 export const router = createBrowserRouter([
   {
@@ -29,12 +30,19 @@ export const router = createBrowserRouter([
       {
         element: <RequireAuth />,
         children: [
-          { path: "home", element: <HomePage /> },
-          { path: "calendar", element: <CalendarPage /> },
+          // 하단 탭이 보이는 화면
+          {
+            element: <TabLayout />,
+            children: [
+              { path: "home", element: <HomePage /> },
+              { path: "calendar", element: <CalendarPage /> },
+              { path: "groups/:groupId", element: <GroupPage /> },
+              { path: "groups/:groupId/polls/:pollId", element: <PollPage /> },
+            ],
+          },
+          // 하단 탭 없이 입력에 집중하는 화면
           { path: "groups/new", element: <CreateGroupPage /> },
-          { path: "groups/:groupId", element: <GroupPage /> },
           { path: "groups/:groupId/polls/new", element: <CreatePollPage /> },
-          { path: "groups/:groupId/polls/:pollId", element: <PollPage /> },
         ],
       },
     ],

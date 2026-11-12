@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import BottomNav from "@/components/BottomNav";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useGroups, usePolls } from "@/stores/selectors";
 import { buildEvents, getMonthCells, todayKey } from "@/utils/calendar";
@@ -39,7 +38,7 @@ function CalendarPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-[390px] flex-col bg-white text-plum">
+    <div className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col gap-3.5 px-5 pt-5">
         {/* 월 이동 */}
         <div className="flex h-11 items-center justify-between">
@@ -257,10 +256,6 @@ function CalendarPage() {
             ))
           )}
         </section>
-      </div>
-
-      <div className="sticky bottom-0 mt-4 bg-white px-5 pt-2 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
-        <BottomNav />
       </div>
     </div>
   );
