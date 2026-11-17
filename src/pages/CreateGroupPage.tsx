@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAppStore } from "@/stores/useAppStore";
+import { toast } from "@/stores/useToastStore";
 
 const MAX_NAME = 20;
 
@@ -29,7 +30,7 @@ function CreateGroupPage() {
       });
       navigate(`/groups/${groupId}`, { replace: true });
     } catch {
-      alert("그룹을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
+      toast.error("모임을 만들지 못했어요. 잠시 후 다시 시도해 주세요."); // 그룹 화면은 "그룹을 만들지 못했어요."
     } finally {
       setSubmitting(false);
     }

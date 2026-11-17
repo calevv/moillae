@@ -4,6 +4,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useGroup } from "@/stores/selectors";
 import { useAppStore } from "@/stores/useAppStore";
 import { getHoliday } from "@/utils/holiday";
+import { toast } from "@/stores/useToastStore";
 
 // 입력 중인 후보 한 개
 type Draft = { key: string; date: string; time: string };
@@ -72,7 +73,7 @@ function CreatePollPage() {
       });
       navigate(`/groups/${group.id}/polls/${pollId}`, { replace: true });
     } catch {
-      alert("모임을 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
+      toast.error("모임을 만들지 못했어요. 잠시 후 다시 시도해 주세요."); // 그룹 화면은 "그룹을 만들지 못했어요."
     } finally {
       setSubmitting(false);
     }

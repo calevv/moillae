@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAppStore } from "@/stores/useAppStore";
+import { confirmDialog } from "@/stores/useConfirmStore";
+import { toast } from "@/stores/useToastStore";
 
 type CancelConfirmButtonProps = {
   pollId: string;
@@ -19,22 +21,24 @@ export default function CancelConfirmButton({
   if (hostId !== currentUserId) return null;
 
   async function handleCancel() {
-    if (
-      !window.confirm(
-        "확정을 취소할까요? 투표가 다시 열리고, 지금까지의 응답은 그대로 남아요.",
-      )
-    )
-      return;
+    const ok = await confirmDialog({
+      title: "확정을 취소할까요?",
+      description: "투표가 다시 열리고, 지금까지의 응답은 그대로 남아요.",
+      confirmLabel: "확정 취소",
+      cancelLabel: "그대로 둘게요",
+      tone: "strong",
+    });
+    if (!ok) return;
+
     setPending(true);
     try {
       await cancelConfirmation(pollId);
-      // 성공하면 투표 화면으로 바뀌면서 이 버튼은 사라져요
+      toast.success("확정을 취소했어요. 다시 투표를 받을 수 있어요.");
     } catch {
-      alert("확정을 취소하지 못했어요. 잠시 후 다시 시도해 주세요.");
+      toast.error("확정을 취소하지 못했어요. 잠시 후 다시 시도해 주세요.");
       setPending(false);
     }
   }
-
   return (
     <button
       type="button"

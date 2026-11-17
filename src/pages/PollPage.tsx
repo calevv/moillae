@@ -6,6 +6,9 @@ import { useAppStore } from "@/stores/useAppStore";
 import type { Poll } from "@/types/poll";
 import { countYes } from "@/utils/poll";
 import ConfirmedPoll from "@/components/ConfirmedPoll";
+import { confirmDialog } from "@/stores/useConfirmStore";
+import { toast } from "@/stores/useToastStore";
+import { formatDateLong, formatTime } from "@/utils/date";
 
 function PollPage() {
   const { pollId } = useParams();
@@ -27,12 +30,23 @@ function PollView({ poll }: { poll: Poll }) {
   const setResponse = useAppStore((s) => s.setResponse);
   const confirmPoll = useAppStore((s) => s.confirmPoll);
 
-  function handleConfirm(optionId: string) {
-    if (!window.confirm("이 시간으로 확정할까요? 확정하면 투표가 마감돼요."))
-      return;
-    confirmPoll(poll.id, optionId).catch(() => {
-      alert("확정하지 못했어요. 잠시 후 다시 시도해 주세요.");
+  async function handleConfirm(optionId: string) {
+    const option = poll.options.find((o) => o.id === optionId);
+    if (!option) return;
+
+    const ok = await confirmDialog({
+      title: `${formatDateLong(option.date)} ${formatTime(option.time)}로 확정할까요?`,
+      description: "확정하면 투표가 마감돼요. 나중에 방장이 취소할 수 있어요.",
+      confirmLabel: "확정하기",
+      cancelLabel: "다시 볼게요",
     });
+    if (!ok) return;
+
+    confirmPoll(poll.id, optionId)
+      .then(() => toast.success("모임을 확정했어요."))
+      .catch(() =>
+        toast.error("확정하지 못했어요. 잠시 후 다시 시도해 주세요."),
+      );
   }
   const group = useGroup(poll.groupId);
   const pollMembers = useGroupMembers(poll.groupId);
@@ -42,7 +56,7 @@ function PollView({ poll }: { poll: Poll }) {
     const current = option?.responses[currentUserId] ?? "pending";
     const next = current === value ? "pending" : value;
     setResponse(poll.id, optionId, currentUserId, next).catch(() => {
-      alert("저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
+      toast.error("저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
     });
   }
 

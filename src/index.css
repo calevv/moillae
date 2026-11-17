@@ -19,3 +19,52 @@
 
   --spacing-tab-bar: 68px; /* 하단 탭 높이 */
 }
+
+/* 확인창: 아래에서 올라오기 */
+.confirm-sheet[open] {
+  animation: sheet-up 200ms ease-out;
+}
+.confirm-sheet[open]::backdrop {
+  animation: fade-in 200ms ease-out;
+}
+
+/* 토스트: 살짝 올라오며 나타나기 */
+.toast-item {
+  animation: toast-in 180ms ease-out;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 움직임 줄이기 설정을 켠 사용자에게는 애니메이션 끄기 */
+@media (prefers-reduced-motion: reduce) {
+  .confirm-sheet[open],
+  .confirm-sheet[open]::backdrop,
+  .toast-item {
+    animation: none;
+  }
+}
