@@ -164,7 +164,19 @@ function HomePage() {
             to="/groups/new"
             className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"
           >
-            {/* 기존 + 아이콘 그대로 */}
+            {" "}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
             그룹 만들기
           </Link>
         </div>
