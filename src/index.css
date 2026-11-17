@@ -16,4 +16,6 @@
   --color-holiday-bg: #fde8eb;
   --color-holiday-text: #a8132c;
   --color-holiday-date: #c0233d;
+
+  --spacing-tab-bar: 68px; /* 하단 탭 높이 */
 }

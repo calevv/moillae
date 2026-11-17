@@ -17,7 +17,7 @@ function GroupPage() {
   const isAlone = groupMembers.length <= 1; // 나 혼자인 그룹
   const hasPolls = groupPolls.length > 0;
   return (
-    <div className="mx-auto flex min-h-screen max-w-[390px] flex-col bg-white text-plum">
+    <div className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col gap-[22px] px-5 pt-3">
         <Link
           to="/home"
@@ -83,12 +83,33 @@ function GroupPage() {
                 </span>
               </div>
             </div>
-            <CopyInviteButton groupId={group.id} variant="dark" />
+            <CopyInviteButton
+              groupId={group.id}
+              inviteCode={group.inviteCode}
+              variant="dark"
+            />
           </section>
         ) : (
           <section className="flex flex-col gap-3.5">
-            {/* 기존 멤버 목록 <ul> ... </ul> 그대로 */}
-            <CopyInviteButton groupId={group.id} />
+            <ul className="flex flex-wrap gap-2.5">
+              {groupMembers.map((m) => (
+                <li
+                  key={m.id}
+                  className="flex w-12 flex-col items-center gap-1.5"
+                >
+                  <span className="flex size-12 items-center justify-center rounded-full bg-cream text-[17px] font-bold">
+                    {m.name.slice(0, 1)}
+                  </span>
+                  <span className="w-full truncate text-center text-[13px] font-medium">
+                    {m.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <CopyInviteButton
+              groupId={group.id}
+              inviteCode={group.inviteCode}
+            />
           </section>
         )}
 
@@ -137,8 +158,8 @@ function GroupPage() {
         </section>
       </div>
 
-      {/* 하단 고정 버튼 */}
-      <div className="sticky bottom-0 mt-4 bg-white px-5 pt-3 pb-7 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
+      {/* 하단 고정 버튼 (탭 바로 위) */}
+      <div className="sticky bottom-tab-bar mt-4 bg-white px-5 py-3 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
         <Link
           to={`/groups/${group.id}/polls/new`}
           className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"

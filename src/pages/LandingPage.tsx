@@ -34,16 +34,10 @@ function LandingPage() {
       </div>
 
       <Link
-        to="/home"
-        className="mt-auto flex h-14 items-center justify-center gap-3 rounded-full bg-coral text-[17px] font-bold"
+        to="/login"
+        className="mt-auto flex h-14 items-center justify-center rounded-full bg-coral text-[17px] font-bold"
       >
-        <span
-          aria-hidden="true"
-          className="flex size-7 items-center justify-center rounded-full bg-white text-[15px] font-extrabold"
-        >
-          G
-        </span>
-        구글로 시작하기
+        시작하기
       </Link>
     </div>
   );

@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 
 type CopyInviteButtonProps = {
   groupId: string;
+  inviteCode?: string; // 데모 더미 그룹에는 없음
   variant?: "outline" | "dark";
 };
 
 export default function CopyInviteButton({
   groupId,
+  inviteCode,
   variant = "outline",
 }: CopyInviteButtonProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
@@ -19,8 +21,10 @@ export default function CopyInviteButton({
   }, [status]);
 
   async function handleCopy() {
-    // 지금은 그룹 주소. 나중에 초대 코드 주소로 바꿔요.
-    const url = `${window.location.origin}/groups/${groupId}`;
+    // 초대 코드가 있으면 초대 주소, 없으면(데모) 그룹 주소
+    const url = inviteCode
+      ? `${window.location.origin}/invite/${inviteCode}`
+      : `${window.location.origin}/groups/${groupId}`;
     try {
       await navigator.clipboard.writeText(url);
       setStatus("copied");
