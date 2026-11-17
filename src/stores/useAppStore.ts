@@ -43,6 +43,7 @@ type AppState = {
   ) => Promise<void>;
   createPoll: (input: NewPollInput) => Promise<string>;
   createGroup: (input: NewGroupInput) => Promise<string>;
+  cancelConfirmation: (pollId: string) => Promise<void>;
 };
 
 const empty = { members: {}, groups: {}, polls: {} };
@@ -241,6 +242,28 @@ export const useAppStore = create<AppState>()(
         }
 
         return group.id;
+      },
+      cancelConfirmation: async (pollId) => {
+        const before = get().polls[pollId];
+        if (!before || !before.confirmedOptionId) return;
+
+        const after: Poll = { ...before, confirmedOptionId: undefined };
+        set(
+          (s) => ({ polls: { ...s.polls, [pollId]: after } }),
+          undefined,
+          "poll/cancelConfirm",
+        );
+
+        try {
+          await saveConfirmation(pollId, null);
+        } catch (error) {
+          set(
+            (s) => ({ polls: { ...s.polls, [pollId]: before } }),
+            undefined,
+            "poll/cancelConfirm:rollback",
+          );
+          throw error;
+        }
       },
     }),
     { name: "MoillaeStore" }, // DevTools에 보이는 이름

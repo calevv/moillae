@@ -42,7 +42,10 @@ export async function saveResponse(
 }
 
 // 확정: 방장만 가능 (RLS가 막음)
-export async function saveConfirmation(pollId: string, optionId: string) {
+export async function saveConfirmation(
+  pollId: string,
+  optionId: string | null,
+) {
   if (isDemo()) return;
 
   const { data, error } = await supabase

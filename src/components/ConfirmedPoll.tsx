@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import CancelConfirmButton from "@/components/CancelConfirmButton";
 import ResponseStatus from "@/components/ResponseStatus";
 import { useGroup, useGroupMembers } from "@/stores/selectors";
 import type { Poll } from "@/types/poll";
@@ -145,6 +146,11 @@ export default function ConfirmedPoll({ poll }: { poll: Poll }) {
           ))}
         </section>
       )}
+
+      {/* 방장에게만 보이는 확정 취소 */}
+      <div className="mt-2">
+        <CancelConfirmButton pollId={poll.id} hostId={poll.hostId} />
+      </div>
     </div>
   );
 }
