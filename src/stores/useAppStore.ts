@@ -16,11 +16,25 @@ import type {
   Poll,
   VoteResponse,
 } from "@/types/poll";
+import { saveDeleteGroup, saveGroupName, saveLeaveGroup } from "@/api/groups";
+
 import { getHoliday } from "@/utils/holiday";
 
 // 배열을 { id: 항목 } 객체로 바꾸기
 function toRecord<T extends { id: string }>(items: T[]): Record<string, T> {
   return Object.fromEntries(items.map((item) => [item.id, item]));
+}
+// 그룹과 그 그룹의 투표를 함께 빼기
+function withoutGroup(
+  s: { groups: Record<string, Group>; polls: Record<string, Poll> },
+  groupId: string,
+) {
+  const groups = { ...s.groups };
+  delete groups[groupId];
+  const polls = Object.fromEntries(
+    Object.entries(s.polls).filter(([, p]) => p.groupId !== groupId),
+  );
+  return { groups, polls };
 }
 
 type DataStatus = "idle" | "loading" | "ready" | "error";
@@ -45,6 +59,9 @@ type AppState = {
   createGroup: (input: NewGroupInput) => Promise<string>;
   cancelConfirmation: (pollId: string) => Promise<void>;
   renameMember: (memberId: string, name: string) => void;
+  renameGroup: (groupId: string, name: string) => Promise<void>;
+  leaveGroup: (groupId: string) => Promise<void>;
+  deleteGroup: (groupId: string) => Promise<void>;
 };
 
 const empty = { members: {}, groups: {}, polls: {} };
@@ -111,7 +128,32 @@ export const useAppStore = create<AppState>()(
           "member/rename",
         );
       },
+      renameGroup: async (groupId, name) => {
+        await saveGroupName(groupId, name);
+        set(
+          (s) =>
+            s.groups[groupId]
+              ? {
+                  groups: {
+                    ...s.groups,
+                    [groupId]: { ...s.groups[groupId], name },
+                  },
+                }
+              : {},
+          undefined,
+          "group/rename",
+        );
+      },
 
+      leaveGroup: async (groupId) => {
+        await saveLeaveGroup(groupId);
+        set((s) => withoutGroup(s, groupId), undefined, "group/leave");
+      },
+
+      deleteGroup: async (groupId) => {
+        await saveDeleteGroup(groupId);
+        set((s) => withoutGroup(s, groupId), undefined, "group/delete");
+      },
       // 화면을 "불러오는 중"으로 바꾸지 않고 조용히 다시 받기 (초대 참여 후 등)
       reloadData: async () => {
         const seq = ++loadSeq;
@@ -220,7 +262,8 @@ export const useAppStore = create<AppState>()(
         const group: Group = {
           id: crypto.randomUUID(),
           name: input.name,
-          memberIds: [input.ownerId], // 만든 사람만 들어 있는 상태로 시작
+          memberIds: [input.ownerId],
+          ownerId: input.ownerId,
         };
 
         set(
