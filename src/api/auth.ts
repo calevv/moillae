@@ -93,3 +93,18 @@ export function authErrorMessage(error: unknown): string {
       return "잠시 후 다시 시도해 주세요.";
   }
 }
+
+// 내 이름 바꾸기 (RLS: 본인 프로필만 수정 가능)
+export async function updateDisplayName(
+  userId: string,
+  name: string,
+): Promise<Profile> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ display_name: name })
+    .eq("id", userId)
+    .select("id, display_name, avatar_url")
+    .single<ProfileRow>();
+  if (error) throw error;
+  return toProfile(data);
+}

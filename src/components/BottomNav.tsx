@@ -6,6 +6,7 @@ const base = "flex flex-col items-center justify-center gap-1 text-xs";
 const isHomeTab = (path: string) =>
   path === "/home" || path.startsWith("/groups/");
 const isCalendarTab = (path: string) => path === "/calendar";
+const isProfileTab = (path: string) => path === "/profile";
 
 export default function BottomNav() {
   const { pathname } = useLocation();
@@ -30,12 +31,23 @@ export default function BottomNav() {
         </>
       ),
     },
+    {
+      to: "/profile",
+      label: "내 정보",
+      active: isProfileTab(pathname),
+      icon: (
+        <>
+          <circle cx="12" cy="8.5" r="3.5" />
+          <path d="M5 19.5c1-3.5 4-5 7-5s6 1.5 7 5" />
+        </>
+      ),
+    },
   ];
 
   return (
     <nav
       aria-label="하단 메뉴"
-      className="grid h-tab-bar grid-cols-2 border-t border-line px-5"
+      className="grid h-tab-bar grid-cols-3 border-t border-line px-5"
     >
       {tabs.map((tab) => (
         <Link
