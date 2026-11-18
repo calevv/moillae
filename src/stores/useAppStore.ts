@@ -44,6 +44,7 @@ type AppState = {
   createPoll: (input: NewPollInput) => Promise<string>;
   createGroup: (input: NewGroupInput) => Promise<string>;
   cancelConfirmation: (pollId: string) => Promise<void>;
+  renameMember: (memberId: string, name: string) => void;
 };
 
 const empty = { members: {}, groups: {}, polls: {} };
@@ -92,6 +93,23 @@ export const useAppStore = create<AppState>()(
       resetData: () => {
         loadSeq++;
         set({ ...empty, dataStatus: "idle" }, undefined, "data/reset");
+      },
+
+      // 내 이름이 바뀌면 그룹·투표 화면의 멤버 이름도 맞추기
+      renameMember: (memberId, name) => {
+        set(
+          (s) =>
+            s.members[memberId]
+              ? {
+                  members: {
+                    ...s.members,
+                    [memberId]: { ...s.members[memberId], name },
+                  },
+                }
+              : {},
+          undefined,
+          "member/rename",
+        );
       },
 
       // 화면을 "불러오는 중"으로 바꾸지 않고 조용히 다시 받기 (초대 참여 후 등)

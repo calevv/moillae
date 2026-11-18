@@ -5,6 +5,7 @@ import {
   signInWithEmail,
   signOutFromSupabase,
   signUpWithEmail,
+  updateDisplayName,
 } from "@/api/auth";
 import { CURRENT_USER_ID } from "@/data/dummy";
 import { supabase } from "@/lib/supabase";
@@ -15,6 +16,7 @@ type AuthStatus = "loading" | "signedOut" | "signedIn" | "demo";
 type AuthState = {
   status: AuthStatus;
   userId: string | null;
+  email: string | null;
   profile: Profile | null;
   startAuthListener: () => () => void;
   signIn: (email: string, password: string) => Promise<void>;
@@ -26,9 +28,15 @@ type AuthState = {
   ) => Promise<void>;
   signOut: () => Promise<void>;
   enterDemo: () => void;
+  updateName: (name: string) => Promise<void>;
 };
 
-const signedOut = { status: "signedOut" as const, userId: null, profile: null };
+const signedOut = {
+  status: "signedOut" as const,
+  userId: null,
+  email: null,
+  profile: null,
+};
 
 export const useAuthStore = create<AuthState>()((set, get) => {
   // 세션이 바뀔 때마다: 없으면 로그아웃 상태, 있으면 프로필 확인 후 로그인 상태
@@ -39,7 +47,12 @@ export const useAuthStore = create<AuthState>()((set, get) => {
     }
     try {
       const profile = await ensureProfile(session.user);
-      set({ status: "signedIn", userId: session.user.id, profile });
+      set({
+        status: "signedIn",
+        userId: session.user.id,
+        email: session.user.email ?? null,
+        profile,
+      });
     } catch (error) {
       console.error(error);
       set(signedOut);
@@ -49,6 +62,7 @@ export const useAuthStore = create<AuthState>()((set, get) => {
   return {
     status: "loading",
     userId: null,
+    email: null,
     profile: null,
 
     startAuthListener: () => {
@@ -86,7 +100,19 @@ export const useAuthStore = create<AuthState>()((set, get) => {
       await signOutFromSupabase(); // 리스너가 signedOut으로 바꿔요
     },
 
+    updateName: async (name) => {
+      const { status, userId } = get();
+      if (status !== "signedIn" || !userId) return;
+      const profile = await updateDisplayName(userId, name); // 실패하면 에러가 화면까지 올라가요
+      set({ profile });
+    },
+
     enterDemo: () =>
-      set({ status: "demo", userId: CURRENT_USER_ID, profile: null }),
+      set({
+        status: "demo",
+        userId: CURRENT_USER_ID,
+        email: null,
+        profile: null,
+      }),
   };
 });
