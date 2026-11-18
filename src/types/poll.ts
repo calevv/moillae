@@ -17,7 +17,8 @@ export type Group = {
   id: string;
   name: string;
   memberIds: string[];
-  inviteCode?: string; // 초대 코드 (데모 더미에는 없음)
+  inviteCode?: string; // 데모 더미에는 없음
+  ownerId?: string; // 데모 더미에는 없음
 };
 
 export type Poll = {

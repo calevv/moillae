@@ -5,7 +5,7 @@ export type ConfirmOptions = {
   description?: string;
   confirmLabel: string;
   cancelLabel: string;
-  tone?: "primary" | "strong"; // primary: 코랄 + 체크, strong: 자두색 + 되돌리기
+  tone?: "primary" | "strong" | "danger"; // primary: 코랄 + 체크, strong: 자두색 + 되돌리기, danger: 되돌릴 수 없는 삭제
 };
 
 type ConfirmRequest = ConfirmOptions & { resolve: (ok: boolean) => void };

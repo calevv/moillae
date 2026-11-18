@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useConfirmStore } from "@/stores/useConfirmStore";
+import { lockScroll } from "@/utils/scrollLock";
 
 export default function ConfirmDialog() {
   const request = useConfirmStore((s) => s.request);
@@ -7,41 +8,44 @@ export default function ConfirmDialog() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  // 스토어의 request가 생기면 열고, 사라지면 닫기
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-
-    if (request && !dialog.open) {
-      dialog.showModal();
-      cancelRef.current?.focus(); // 실수로 Enter를 눌러도 "취소"가 되도록 안전한 버튼에 초점
-      document.body.style.overflow = "hidden"; // 뒤 화면 스크롤 막기
+    if (!request) {
+      if (dialog.open) dialog.close();
+      return;
     }
-    if (!request && dialog.open) {
-      dialog.close();
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (!dialog.open) dialog.showModal();
+    cancelRef.current?.focus(); // 실수로 Enter를 눌러도 "취소"가 되도록
+    return lockScroll();
   }, [request]);
 
-  const strong = request?.tone === "strong";
+  const tone = request?.tone ?? "primary";
+
+  const confirmClass =
+    tone === "danger"
+      ? "border-[1.5px] border-danger bg-white text-danger"
+      : tone === "strong"
+        ? "bg-plum text-white"
+        : "bg-coral text-plum";
+
+  const cancelClass =
+    tone === "danger"
+      ? "bg-plum text-white" // 삭제할 때는 "취소"를 더 눈에 띄게
+      : "border-[1.5px] border-plum bg-white";
 
   return (
     <dialog
       ref={dialogRef}
       aria-labelledby="confirm-title"
       aria-describedby={request?.description ? "confirm-desc" : undefined}
-      // Esc: 브라우저가 직접 닫지 않게 막고, 스토어를 통해 닫아요
       onCancel={(e) => {
         e.preventDefault();
         close(false);
       }}
-      // 혹시 브라우저가 그냥 닫아 버린 경우에도 스토어와 맞추기
       onClose={() => {
         if (useConfirmStore.getState().request) close(false);
       }}
-      // 어두운 배경(backdrop)을 누르면 취소
       onClick={(e) => {
         if (e.target === e.currentTarget) close(false);
       }}
@@ -54,12 +58,31 @@ export default function ConfirmDialog() {
             className="mx-auto mb-5 h-1 w-9 rounded-full bg-line"
           />
 
-          <h2
-            id="confirm-title"
-            className="text-lg leading-[1.45] font-bold tracking-tight"
-          >
-            {request.title}
-          </h2>
+          <div className="flex items-start gap-2">
+            {tone === "danger" && (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="mt-0.5 shrink-0 text-danger"
+              >
+                <path d="M12 3.5l9.5 16.5h-19z" />
+                <path d="M12 10v4.5M12 17.2v.01" />
+              </svg>
+            )}
+            <h2
+              id="confirm-title"
+              className="text-lg leading-[1.45] font-bold tracking-tight"
+            >
+              {request.title}
+            </h2>
+          </div>
           {request.description && (
             <p
               id="confirm-desc"
@@ -69,15 +92,15 @@ export default function ConfirmDialog() {
             </p>
           )}
 
-          <div className="mt-6 flex flex-col gap-2">
+          <div
+            className={`mt-6 flex flex-col ${tone === "danger" ? "gap-3" : "gap-2"}`}
+          >
             <button
               type="button"
               onClick={() => close(true)}
-              className={`flex h-12 items-center justify-center gap-1.5 rounded-full text-[15px] font-bold ${
-                strong ? "bg-plum text-white" : "bg-coral text-plum"
-              }`}
+              className={`flex h-12 items-center justify-center gap-1.5 rounded-full text-[15px] font-bold ${confirmClass}`}
             >
-              {!strong && (
+              {tone === "primary" && (
                 <svg
                   width="16"
                   height="16"
@@ -92,13 +115,28 @@ export default function ConfirmDialog() {
                   <path d="M5 12.5l4.5 4.5L19 7.5" />
                 </svg>
               )}
+              {tone === "danger" && (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4.5 7h15M10 7V4.5h4V7M6.5 7l1 12.5h9l1-12.5M10.5 11v5M13.5 11v5" />
+                </svg>
+              )}
               {request.confirmLabel}
             </button>
             <button
               ref={cancelRef}
               type="button"
               onClick={() => close(false)}
-              className="h-12 rounded-full border-[1.5px] border-plum bg-white text-[15px] font-bold"
+              className={`h-12 rounded-full text-[15px] font-bold ${cancelClass}`}
             >
               {request.cancelLabel}
             </button>

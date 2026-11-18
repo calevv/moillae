@@ -10,7 +10,12 @@ import { toDateKey } from "@/utils/calendar";
 import { getHoliday } from "@/utils/holiday";
 
 type ProfileRow = { id: string; display_name: string };
-type GroupRow = { id: string; name: string; invite_code: string };
+type GroupRow = {
+  id: string;
+  name: string;
+  invite_code: string;
+  owner_id: string;
+};
 type GroupMemberRow = { group_id: string; user_id: string };
 type PollRow = {
   id: string;
@@ -51,7 +56,10 @@ export async function fetchAppData(): Promise<AppData> {
     responsesRes,
   ] = await Promise.all([
     supabase.from("profiles").select("id, display_name"),
-    supabase.from("groups").select("id, name, invite_code").order("created_at"),
+    supabase
+      .from("groups")
+      .select("id, name, invite_code, owner_id")
+      .order("created_at"),
     supabase
       .from("group_members")
       .select("group_id, user_id")
@@ -103,6 +111,7 @@ export async function fetchAppData(): Promise<AppData> {
         name: g.name,
         memberIds: memberIdsByGroup[g.id] ?? [],
         inviteCode: g.invite_code,
+        ownerId: g.owner_id,
       },
     ]),
   );
