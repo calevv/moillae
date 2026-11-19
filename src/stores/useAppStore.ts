@@ -6,8 +6,6 @@ import { saveConfirmation, savePoll, saveResponse } from '@/api/polls';
 import type { Group, Member, NewGroupInput, NewPollInput, Poll, VoteResponse } from '@/types/poll';
 import { saveDeleteGroup, saveGroup, saveGroupName, saveLeaveGroup } from '@/api/groups';
 
-import { getHoliday } from '@/utils/holiday';
-
 // 배열을 { id: 항목 } 객체로 바꾸기
 function toRecord<T extends { id: string }>(items: T[]): Record<string, T> {
     return Object.fromEntries(items.map((item) => [item.id, item]));
@@ -187,7 +185,6 @@ export const useAppStore = create<AppState>()(
                             id: crypto.randomUUID(),
                             date: o.date,
                             time: o.time,
-                            holiday: getHoliday(o.date),
                             responses: {},
                         }))
                         .sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`)),

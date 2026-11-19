@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { Group, Member, Poll, TimeOption, VoteResponse } from '@/types/poll';
 import { toDateKey } from '@/utils/calendar';
-import { getHoliday } from '@/utils/holiday';
 
 export type AppData = {
     members: Record<string, Member>;
@@ -90,7 +89,6 @@ export async function fetchAppData(): Promise<AppData> {
             id: o.id,
             date,
             time,
-            holiday: getHoliday(date),
             responses,
         });
     }

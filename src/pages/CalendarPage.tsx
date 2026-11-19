@@ -5,7 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useGroups, usePolls } from '@/stores/selectors';
 import { WEEKDAYS, buildEvents, formatUpcomingDay, getMonthCells, getUpcomingEvents, todayKey } from '@/utils/calendar';
 import { formatDateLong } from '@/utils/date';
-import { getHoliday } from '@/utils/holiday';
+import { useHolidays } from '@/hooks/useHolidays';
 
 type FilterChipProps = {
     label: string;
@@ -40,7 +40,8 @@ function CalendarPage() {
         return { year, month };
     });
     const [selected, setSelected] = useState(today);
-
+    // 보고 있는 달과 선택한 날의 연도 공휴일.
+    const getHoliday = useHolidays([view.year, Number(selected.slice(0, 4))]);
     const myGroups = groups.filter((g) => g.memberIds.includes(currentUserId));
 
     // URL의 ?group= 값. 내 그룹에 없는 id(나간 그룹 등)면 "전체"로
