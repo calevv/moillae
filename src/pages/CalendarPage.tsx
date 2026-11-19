@@ -140,10 +140,15 @@ function CalendarPage() {
                     </div>
                 )}
 
-                {/* 요일 */}
+                {/* 요일: 일요일만 빨간색 */}
                 <div className="mt-1 grid h-7 grid-cols-7 items-center" aria-hidden="true">
-                    {WEEKDAYS.map((w) => (
-                        <span key={w} className="text-center text-[13px] font-bold text-subtext">
+                    {WEEKDAYS.map((w, i) => (
+                        <span
+                            key={w}
+                            className={`text-center text-[13px] font-bold ${
+                                i === 0 ? 'text-holiday-date' : 'text-subtext'
+                            }`}
+                        >
                             {w}
                         </span>
                     ))}
@@ -153,7 +158,7 @@ function CalendarPage() {
                 <div className="-mx-5 border-b border-line">
                     {weeks.map((week) => (
                         <div key={week[0].date} className="grid grid-cols-7 border-t border-line px-5">
-                            {week.map((cell) => {
+                            {week.map((cell, i) => {
                                 if (!cell.inMonth) {
                                     return (
                                         <span
@@ -182,16 +187,13 @@ function CalendarPage() {
                                     (hasConfirmed ? ', 확정된 모임 있음' : '') +
                                     (hasCandidate ? ', 투표 중인 후보 있음' : '');
 
-                                // 선택 > 오늘(테두리) > 공휴일 > 기본
+                                // 선택이면 코랄 원. 아니면 굵기, 색, 오늘 테두리를 따로 정해서 합치기
+                                const isSunday = i === 0;
+                                const weight = holiday || isToday ? 'font-bold' : 'font-medium';
+                                const color = holiday || isSunday ? 'text-holiday-date' : '';
                                 const numberStyle = isSelected
                                     ? 'bg-coral font-bold'
-                                    : `${isToday ? 'border-[1.5px] border-plum' : ''} ${
-                                          holiday
-                                              ? 'font-bold text-holiday-date'
-                                              : isToday
-                                                ? 'font-bold'
-                                                : 'font-medium'
-                                      }`;
+                                    : `${weight} ${color} ${isToday ? 'border-[1.5px] border-plum' : ''}`;
 
                                 return (
                                     <button
