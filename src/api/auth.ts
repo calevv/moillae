@@ -1,12 +1,11 @@
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import type { Profile } from '@/types/auth';
+import type { TableRow } from '@/types/dbHelpers';
 
-type ProfileRow = {
-    id: string;
-    display_name: string;
-    avatar_url: string | null;
-};
+// 프로필에서 쓰는 칸만. select 세 곳이 같은 칸을 쓰게 한 곳에 모아 둬요
+const PROFILE_COLUMNS = 'id, display_name, avatar_url';
+type ProfileRow = Pick<TableRow<'profiles'>, 'id' | 'display_name' | 'avatar_url'>;
 
 const toProfile = (row: ProfileRow): Profile => ({
     id: row.id,
@@ -18,9 +17,9 @@ const toProfile = (row: ProfileRow): Profile => ({
 export async function ensureProfile(user: User): Promise<Profile> {
     const { data: existing, error: selectError } = await supabase
         .from('profiles')
-        .select('id, display_name, avatar_url')
+        .select(PROFILE_COLUMNS)
         .eq('id', user.id)
-        .maybeSingle<ProfileRow>();
+        .maybeSingle();
     if (selectError) throw selectError;
     if (existing) return toProfile(existing);
 
@@ -39,8 +38,8 @@ export async function ensureProfile(user: User): Promise<Profile> {
             display_name: displayName,
             avatar_url: meta.avatar_url ?? null,
         })
-        .select('id, display_name, avatar_url')
-        .single<ProfileRow>();
+        .select(PROFILE_COLUMNS)
+        .single();
     if (insertError) throw insertError;
     return toProfile(created);
 }
@@ -62,6 +61,7 @@ export async function signUpWithEmail(name: string, email: string, password: str
     });
     if (error) throw error;
 }
+
 export async function signOutFromSupabase() {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -92,8 +92,8 @@ export async function updateDisplayName(userId: string, name: string): Promise<P
         .from('profiles')
         .update({ display_name: name })
         .eq('id', userId)
-        .select('id, display_name, avatar_url')
-        .single<ProfileRow>();
+        .select(PROFILE_COLUMNS)
+        .single();
     if (error) throw error;
     return toProfile(data);
 }
