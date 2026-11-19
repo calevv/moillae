@@ -1,11 +1,13 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Supabase 환경 변수가 없어요. .env.local을 확인해 주세요.");
+    throw new Error('Supabase 환경 변수가 없어요. .env.local을 확인해 주세요.');
 }
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  db: { schema: "moillae" },
+
+export const supabase = createClient<Database, 'moillae'>(supabaseUrl, supabaseKey, {
+    db: { schema: 'moillae' },
 });
