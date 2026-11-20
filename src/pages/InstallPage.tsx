@@ -1,8 +1,12 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useInstallStore } from "@/stores/useInstallStore";
 import { toast } from "@/stores/useToastStore";
-import { getInstallContext, kakaoOpenExternalUrl } from "@/utils/device";
+import {
+  getInstallContext,
+  kakaoOpenExternalUrl,
+  type InstallContext,
+} from "@/utils/device";
 
 type Step = { text: string; hint?: string };
 
@@ -22,6 +26,28 @@ const ANDROID_MENU_STEPS: Step[] = [
   { text: "‘앱 설치’ 또는 ‘홈 화면에 추가’를 눌러요" },
   { text: "‘설치’를 눌러요" },
 ];
+
+// 보여 줄 수 있는 안내 종류
+type Guide =
+  | "installed" // 이미 앱으로 열었음
+  | "desktop" // PC
+  | "openBrowser" // 앱 안 브라우저 → Safari/Chrome으로 옮기기
+  | "iosSteps" // 아이폰 Safari 단계
+  | "androidButton" // 안드로이드 설치 버튼
+  | "androidSteps"; // 안드로이드 메뉴 단계
+
+type ManualPick = "ios" | "android" | null;
+
+// 기기와 브라우저를 보고 안내 하나 고르기. 위에서부터 검사하는 순서가 중요해요
+// (카카오톡 안은 아이폰이기도 해서, 아이폰보다 먼저 검사해야 해요)
+function pickGuide(ctx: InstallContext, hasPrompt: boolean): Guide {
+  if (ctx.isStandalone) return "installed";
+  if (ctx.platform === "desktop") return "desktop";
+  if (ctx.inAppBrowser || (ctx.platform === "ios" && !ctx.isIosSafari))
+    return "openBrowser";
+  if (ctx.platform === "ios") return "iosSteps";
+  return hasPrompt ? "androidButton" : "androidSteps";
+}
 
 const primaryButton =
   "flex h-12 w-full items-center justify-center rounded-full bg-coral text-base font-bold";
@@ -56,14 +82,49 @@ function Steps({ steps }: { steps: Step[] }) {
   );
 }
 
+function PickButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={`h-11 flex-1 rounded-full border-[1.5px] text-sm font-bold ${
+        active ? "border-plum bg-plum text-white" : "border-line bg-white"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function InstallPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const promptEvent = useInstallStore((s) => s.promptEvent);
   const promptInstall = useInstallStore((s) => s.promptInstall);
+  const [manual, setManual] = useState<ManualPick>(null); // 사용자가 직접 고른 기기
 
   const ctx = getInstallContext();
   const installUrl = `${window.location.origin}/install`;
+
+  // 직접 골랐으면 그 기기 안내, 아니면 자동으로 고른 안내
+  const autoGuide = pickGuide(ctx, promptEvent !== null);
+  const guide: Guide =
+    manual === "ios"
+      ? "iosSteps"
+      : manual === "android"
+        ? promptEvent
+          ? "androidButton"
+          : "androidSteps"
+        : autoGuide;
 
   // 앱 안에서 이동해 왔으면 뒤로, 주소로 바로 열었으면 첫 화면으로
   const goBack = () =>
@@ -90,12 +151,11 @@ function InstallPage() {
     </p>
   );
 
-  // 지금 상태에 맞는 안내 하나만 고르기
-  let body: ReactNode;
-  let showFinishNote = false;
+  const browser = ctx.platform === "ios" ? "Safari" : "Chrome";
 
-  if (ctx.isStandalone) {
-    body = (
+  // 안내 이름별 화면
+  const bodies: Record<Guide, ReactNode> = {
+    installed: (
       <section className="mt-6">
         <h2 className="text-lg font-bold">이미 앱으로 쓰고 있어요</h2>
         <p className="mt-1.5 text-sm leading-relaxed text-subtext">
@@ -105,9 +165,8 @@ function InstallPage() {
           홈으로
         </Link>
       </section>
-    );
-  } else if (ctx.platform === "desktop") {
-    body = (
+    ),
+    desktop: (
       <section className="mt-6">
         <h2 className="text-lg font-bold">휴대폰에서 열어 주세요</h2>
         <p className="mt-1.5 text-sm leading-relaxed text-subtext">
@@ -122,11 +181,8 @@ function InstallPage() {
           주소 복사
         </button>
       </section>
-    );
-  } else if (ctx.inAppBrowser || (ctx.platform === "ios" && !ctx.isIosSafari)) {
-    // 카카오톡 같은 앱 안 브라우저, 또는 아이폰의 Safari가 아닌 브라우저
-    const browser = ctx.platform === "ios" ? "Safari" : "Chrome";
-    body = (
+    ),
+    openBrowser: (
       <section className="mt-6">
         <h2 className="text-lg font-bold">
           {browser}에서 열어야 설치할 수 있어요
@@ -156,13 +212,9 @@ function InstallPage() {
           복사한 주소를 {browser} 주소창에 붙여넣어요.
         </p>
       </section>
-    );
-  } else if (ctx.platform === "ios") {
-    showFinishNote = true;
-    body = <Steps steps={IOS_SAFARI_STEPS} />;
-  } else if (promptEvent) {
-    // 안드로이드 + 설치 신호를 받았을 때: 버튼 하나로
-    body = (
+    ),
+    iosSteps: <Steps steps={IOS_SAFARI_STEPS} />,
+    androidButton: (
       <section className="mt-6">
         <h2 className="text-lg font-bold">버튼을 누르면 설치돼요</h2>
         <button
@@ -176,12 +228,11 @@ function InstallPage() {
           설치 창이 뜨면 ‘설치’를 눌러요. 끝나면 홈 화면에 모일래가 생겨요.
         </p>
       </section>
-    );
-  } else {
-    // 안드로이드인데 신호가 없을 때: 메뉴로
-    showFinishNote = true;
-    body = <Steps steps={ANDROID_MENU_STEPS} />;
-  }
+    ),
+    androidSteps: <Steps steps={ANDROID_MENU_STEPS} />,
+  };
+
+  const showFinishNote = guide === "iosSteps" || guide === "androidSteps";
 
   return (
     <div className="mx-auto min-h-screen max-w-[390px] bg-white px-5 pt-3 pb-7 text-plum">
@@ -213,12 +264,42 @@ function InstallPage() {
         홈 화면에 추가하면 주소창 없이 앱처럼 바로 열 수 있어요.
       </p>
 
-      {body}
+      {bodies[guide]}
 
       {showFinishNote && (
         <p className="mt-4 text-sm leading-relaxed text-subtext">
           끝나면 홈 화면의 모일래 아이콘으로 열어 주세요.
         </p>
+      )}
+
+      {/* 판별이 틀렸을 때를 위한 직접 고르기. 이미 설치했으면 필요 없어요 */}
+      {autoGuide !== "installed" && (
+        <section className="mt-10 border-t border-line pt-5">
+          <h2 className="text-[13px] font-bold text-subtext">
+            다른 기기 안내 보기
+          </h2>
+          <div
+            role="group"
+            aria-label="기기 고르기"
+            className="mt-2.5 flex gap-2"
+          >
+            <PickButton
+              label="내 기기"
+              active={manual === null}
+              onClick={() => setManual(null)}
+            />
+            <PickButton
+              label="아이폰"
+              active={manual === "ios"}
+              onClick={() => setManual("ios")}
+            />
+            <PickButton
+              label="안드로이드"
+              active={manual === "android"}
+              onClick={() => setManual("android")}
+            />
+          </div>
+        </section>
       )}
     </div>
   );
