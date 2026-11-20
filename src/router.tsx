@@ -14,6 +14,7 @@ import SignUpPage from "@/pages/SignUpPage";
 import InvitePage from "@/pages/InvitePage";
 import TabLayout from "@/layouts/TabLayout";
 import ProfilePage from "@/pages/ProfilePage";
+import InstallPage from "@/pages/InstallPage";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "login/email", element: <EmailLoginPage /> },
       { path: "signup", element: <SignUpPage /> },
       { path: "invite/:code", element: <InvitePage /> },
+      { path: "install", element: <InstallPage /> },
 
       // 로그인(또는 데모)해야 볼 수 있는 화면
       {
