@@ -82,6 +82,39 @@ export type Database = {
           },
         ]
       }
+      holiday_fetches: {
+        Row: {
+          fetched_at: string
+          year: number
+        }
+        Insert: {
+          fetched_at?: string
+          year: number
+        }
+        Update: {
+          fetched_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      holidays: {
+        Row: {
+          date: string
+          name: string
+          year: number
+        }
+        Insert: {
+          date: string
+          name: string
+          year: number
+        }
+        Update: {
+          date?: string
+          name?: string
+          year?: number
+        }
+        Relationships: []
+      }
       poll_options: {
         Row: {
           id: string
@@ -247,6 +280,10 @@ export type Database = {
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
       option_group_id: { Args: { oid: string }; Returns: string }
       poll_group_id: { Args: { pid: string }; Returns: string }
+      replace_holidays: {
+        Args: { p_items: Json; p_year: number }
+        Returns: undefined
+      }
       shares_group_with: { Args: { uid: string }; Returns: boolean }
     }
     Enums: {

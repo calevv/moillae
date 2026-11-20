@@ -1,44 +1,43 @@
-export type VoteResponse = "yes" | "no" | "pending"; // 가능, 불가능, 미응답
+export type VoteResponse = 'yes' | 'no' | 'pending'; // 가능, 불가능, 미응답
 
 export type Member = {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 };
 
 export type TimeOption = {
-  id: string;
-  date: string; // "2026-12-19"
-  time: string; // "19:00"
-  holiday?: string;
-  responses: Record<string, VoteResponse>; // memberId → 응답
+    id: string;
+    date: string; // "2026-12-19"
+    time: string; // "19:00"
+    responses: Record<string, VoteResponse>; // memberId → 응답
 };
 
 export type Group = {
-  id: string;
-  name: string;
-  memberIds: string[];
-  inviteCode?: string; // 데모 더미에는 없음
-  ownerId?: string; // 데모 더미에는 없음
+    id: string;
+    name: string;
+    memberIds: string[];
+    inviteCode?: string; // 데모 더미에는 없음
+    ownerId?: string; // 데모 더미에는 없음
 };
 
 export type Poll = {
-  id: string;
-  groupId: string;
-  title: string;
-  hostId: string;
-  confirmedOptionId?: string;
-  options: TimeOption[];
+    id: string;
+    groupId: string;
+    title: string;
+    hostId: string;
+    confirmedOptionId?: string;
+    options: TimeOption[];
 };
 
 // 입력 타입
 export type NewPollInput = {
-  groupId: string;
-  title: string;
-  hostId: string;
-  options: { date: string; time: string }[];
+    groupId: string;
+    title: string;
+    hostId: string;
+    options: { date: string; time: string }[];
 };
 
 export type NewGroupInput = {
-  name: string;
-  ownerId: string;
+    name: string;
+    ownerId: string;
 };
