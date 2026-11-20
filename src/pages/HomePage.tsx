@@ -4,6 +4,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useGroups, useMemberMap, usePolls } from "@/stores/selectors";
 import { needsMyResponse } from "@/utils/poll";
 import { useAuthStore } from "@/stores/useAuthStore";
+import InstallBanner from "@/components/InstallBanner";
 
 function HomePage() {
   const currentUserId = useCurrentUser();
@@ -49,6 +50,8 @@ function HomePage() {
             로그아웃
           </button>
         </div>
+
+        <InstallBanner />
 
         <h1 className="text-[30px] leading-tight font-extrabold tracking-tight">
           내 그룹
