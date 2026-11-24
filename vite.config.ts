@@ -22,6 +22,8 @@ export default defineConfig({
         navigateFallback: "/index.html",
         // 예전 버전 캐시는 지우기
         cleanupOutdatedCaches: true,
+        // 푸시 처리 파일을 서비스 워커에 덧붙이기
+        importScripts: ["push-sw.js"],
       },
     }),
   ],

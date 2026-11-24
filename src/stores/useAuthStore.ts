@@ -10,6 +10,7 @@ import {
 import { CURRENT_USER_ID } from "@/data/dummy";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/types/auth";
+import { detachPush } from "@/utils/push";
 
 type AuthStatus = "loading" | "signedOut" | "signedIn" | "demo";
 
@@ -93,6 +94,12 @@ export const useAuthStore = create<AuthState>()((set, get) => {
       }
     },
     signOut: async () => {
+      // 이 기기와 내 계정의 푸시 연결만 끊기 (사서함은 다음 로그인 때 다시 씀)
+      if (get().status === "signedIn") {
+        await detachPush().catch((e: unknown) =>
+          console.error("푸시 연결 해제 실패", e),
+        );
+      }
       if (get().status === "demo") {
         set(signedOut);
         return;

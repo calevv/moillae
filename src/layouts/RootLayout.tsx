@@ -5,6 +5,7 @@ import Toaster from "@/components/Toaster";
 import { useAppStore } from "@/stores/useAppStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
+import { usePushSync } from "@/hooks/usePushSync";
 
 function RootLayout() {
   const status = useAuthStore((s) => s.status);
@@ -21,7 +22,8 @@ function RootLayout() {
   }, [status, userId]);
 
   // 로그인한 동안 DB 변경을 구독해서 친구의 투표 등을 바로 반영
-  useRealtimeSync();
+  useRealtimeSync(); // 로그인하면 이 기기의 알림을 지금 계정으로 다시 연결
+  usePushSync();
 
   return (
     <>
