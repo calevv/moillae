@@ -115,6 +115,54 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          group_id: string
+          id: string
+          poll_id: string | null
+          read_at: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          poll_id?: string | null
+          read_at?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          poll_id?: string | null
+          read_at?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poll_options: {
         Row: {
           id: string
@@ -211,6 +259,39 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          kind: string
+          p256dh: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          kind?: string
+          p256dh?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          kind?: string
+          p256dh?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       responses: {
         Row: {
           option_id: string
@@ -282,6 +363,15 @@ export type Database = {
       poll_group_id: { Args: { pid: string }; Returns: string }
       replace_holidays: {
         Args: { p_items: Json; p_year: number }
+        Returns: undefined
+      }
+      save_push_subscription: {
+        Args: {
+          p_auth: string
+          p_endpoint: string
+          p_p256dh: string
+          p_user_agent: string
+        }
         Returns: undefined
       }
       shares_group_with: { Args: { uid: string }; Returns: boolean }
