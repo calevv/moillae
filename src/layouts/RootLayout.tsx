@@ -4,6 +4,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import Toaster from "@/components/Toaster";
 import { useAppStore } from "@/stores/useAppStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 
 function RootLayout() {
   const status = useAuthStore((s) => s.status);
@@ -18,6 +19,9 @@ function RootLayout() {
     else if (status === "demo") app.loadDemo();
     else if (status === "signedOut") app.resetData();
   }, [status, userId]);
+
+  // 로그인한 동안 DB 변경을 구독해서 친구의 투표 등을 바로 반영
+  useRealtimeSync();
 
   return (
     <>
