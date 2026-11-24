@@ -5,6 +5,7 @@ import { confirmDialog } from "@/stores/useConfirmStore";
 import { toast } from "@/stores/useToastStore";
 import { getInstallContext } from "@/utils/device";
 import { Link } from "react-router";
+import PushSetting from "@/components/PushSetting";
 
 const MAX_NAME = 20;
 
@@ -210,6 +211,9 @@ function ProfilePage() {
               이메일은 바꿀 수 없어요.
             </p>
           </section>
+
+          <PushSetting />
+
           {getInstallContext().isStandalone ? (
             <div className="flex h-14 items-center justify-between border-b border-line text-base font-medium">
               앱으로 설치하기
