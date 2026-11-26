@@ -15,6 +15,7 @@ import InvitePage from "@/pages/InvitePage";
 import TabLayout from "@/layouts/TabLayout";
 import ProfilePage from "@/pages/ProfilePage";
 import InstallPage from "@/pages/InstallPage";
+import NotificationsPage from "@/pages/NotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
               { path: "groups/:groupId", element: <GroupPage /> },
               { path: "groups/:groupId/polls/:pollId", element: <PollPage /> },
               { path: "profile", element: <ProfilePage /> },
+              { path: "notifications", element: <NotificationsPage /> },
             ],
           },
           // 하단 탭 없이 입력에 집중하는 화면

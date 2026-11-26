@@ -3,8 +3,8 @@ import GroupCard from "@/components/GroupCard";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useGroups, useMemberMap, usePolls } from "@/stores/selectors";
 import { needsMyResponse } from "@/utils/poll";
-import { useAuthStore } from "@/stores/useAuthStore";
 import InstallBanner from "@/components/InstallBanner";
+import NotificationBell from "@/components/NotificationBell";
 
 function HomePage() {
   const currentUserId = useCurrentUser();
@@ -22,7 +22,6 @@ function HomePage() {
   );
   const firstPending = pendingPolls[0];
 
-  const signOut = useAuthStore((s) => s.signOut);
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col gap-5 px-5 pt-5">
@@ -42,13 +41,7 @@ function HomePage() {
               모일래
             </span>
           </div>
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="min-h-11 px-2 text-sm text-subtext"
-          >
-            로그아웃
-          </button>
+          <NotificationBell />
         </div>
 
         <InstallBanner />
