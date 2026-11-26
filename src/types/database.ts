@@ -361,6 +361,7 @@ export type Database = {
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
       option_group_id: { Args: { oid: string }; Returns: string }
       poll_group_id: { Args: { pid: string }; Returns: string }
+      regenerate_invite_code: { Args: { p_group_id: string }; Returns: string }
       replace_holidays: {
         Args: { p_items: Json; p_year: number }
         Returns: undefined
