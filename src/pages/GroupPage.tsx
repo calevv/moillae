@@ -8,6 +8,7 @@ import { useGroup, useGroupMembers, useGroupPolls } from "@/stores/selectors";
 import { useAppStore } from "@/stores/useAppStore";
 import { confirmDialog } from "@/stores/useConfirmStore";
 import { toast } from "@/stores/useToastStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const MAX_NAME = 20;
 type Sheet = "menu" | "rename" | null;
@@ -25,6 +26,8 @@ function GroupPage() {
   const renameGroup = useAppStore((s) => s.renameGroup);
   const leaveGroup = useAppStore((s) => s.leaveGroup);
   const deleteGroup = useAppStore((s) => s.deleteGroup);
+  const regenerateInviteCode = useAppStore((s) => s.regenerateInviteCode);
+  const isDemo = useAuthStore((s) => s.status) === "demo";
 
   const [sheet, setSheet] = useState<Sheet>(null);
   const [draft, setDraft] = useState("");
@@ -105,6 +108,26 @@ function GroupPage() {
           ? "혼자 있는 그룹은 나갈 수 없어요. 그룹을 삭제해 주세요."
           : "그룹에서 나가지 못했어요. 잠시 후 다시 시도해 주세요.",
       );
+    }
+  };
+
+  const handleRegenerateInvite = async () => {
+    setSheet(null);
+    const ok = await confirmDialog({
+      title: "초대 링크를 새로 만들까요?",
+      description:
+        "예전 링크로는 더 이상 들어올 수 없어요. 이미 들어온 멤버는 그대로예요.",
+      confirmLabel: "새로 만들기",
+      cancelLabel: "취소",
+      tone: "strong",
+    });
+    if (!ok) return;
+
+    try {
+      await regenerateInviteCode(group.id);
+      toast.success("새 초대 링크를 만들었어요. 친구에게 다시 보내 주세요.");
+    } catch {
+      toast.error("초대 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.");
     }
   };
 
@@ -339,6 +362,17 @@ function GroupPage() {
                 그룹 이름 바꾸기
               </button>
             )}
+
+            {isOwner && !isDemo && (
+              <button
+                type="button"
+                onClick={() => void handleRegenerateInvite()}
+                className={`${menuItemClass} border-t border-line`}
+              >
+                초대 링크 새로 만들기
+              </button>
+            )}
+
             {!(isOwner && isAlone) && (
               <button
                 type="button"
