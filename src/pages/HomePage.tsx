@@ -116,7 +116,8 @@ function HomePage() {
                   strokeLinejoin="round"
                   aria-hidden="true"
                 >
-                  <path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4" />
+                  <rect x="4" y="4" width="16" height="16" rx="4" />
+                  <path d="M8.5 12.2l2.4 2.4 4.6-5" />
                 </svg>
                 <span className="flex-1 text-[15px] font-bold">
                   응답이 필요한 모임이 {pendingPolls.length}개 있어요
@@ -155,12 +156,11 @@ function HomePage() {
       </div>
 
       {myGroups.length > 0 && (
-        <div className="sticky bottom-tab-bar mt-4 bg-white px-5 py-3 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
+        <div className="sticky bottom-tab-bar mt-4 border-t border-line bg-white px-5 py-3">
           <Link
             to="/groups/new"
             className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"
           >
-            {" "}
             <svg
               width="20"
               height="20"

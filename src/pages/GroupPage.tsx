@@ -300,7 +300,7 @@ function GroupPage() {
       </div>
 
       {/* 하단 고정 버튼 (탭 바로 위) */}
-      <div className="sticky bottom-tab-bar mt-4 bg-white px-5 py-3 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
+      <div className="sticky bottom-tab-bar mt-4 bg-white px-5 py-3 border-t border-line">
         <Link
           to={`/groups/${group.id}/polls/new`}
           className="flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-coral text-[17px] font-bold"

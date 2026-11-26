@@ -247,7 +247,7 @@ function CreatePollPage() {
       </div>
 
       {/* 하단 고정: 등록 */}
-      <div className="sticky bottom-0 mt-4 flex flex-col gap-2 bg-white px-5 pt-3 pb-7 shadow-[0_-8px_20px_rgba(54,23,43,0.05)]">
+      <div className="sticky bottom-0 mt-4 flex flex-col gap-2 bg-white px-5 pt-3 pb-7 border-t border-line">
         {attempted && error && (
           <p
             role="alert"
