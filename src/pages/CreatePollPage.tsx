@@ -16,7 +16,7 @@ const newDraft = (): Draft => ({
 });
 
 const inputStyle =
-  "w-full rounded-2xl border-[1.5px] border-muted-line bg-white px-4 text-plum outline-none focus:border-plum";
+  "w-full rounded-2xl border-[1.5px] border-muted-line bg-white outline-none focus:border-plum";
 
 function CreatePollPage() {
   const { groupId } = useParams();
@@ -131,7 +131,7 @@ function CreatePollPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="예: 송년회"
-            className={`${inputStyle} h-14 text-[17px] font-medium`}
+            className={`${inputStyle} h-14 px-4 text-[17px] font-medium`}
           />
         </div>
 
@@ -190,7 +190,7 @@ function CreatePollPage() {
                       onChange={(e) =>
                         updateDraft(d.key, "date", e.target.value)
                       }
-                      className={`${inputStyle} h-12 px-2.5 text-[15px] font-bold ${holiday ? "text-holiday-date" : ""}`}
+                      className={`${inputStyle} h-12 min-w-0 appearance-none px-2.5 text-[15px] font-bold ${holiday ? "text-holiday-date" : ""}`}
                     />
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -207,7 +207,7 @@ function CreatePollPage() {
                       onChange={(e) =>
                         updateDraft(d.key, "time", e.target.value)
                       }
-                      className={`${inputStyle} h-12 px-2.5 text-[15px] font-bold`}
+                      className={`${inputStyle} h-12 min-w-0 appearance-none px-2.5 text-[15px] font-bold`}
                     />
                   </div>
                 </div>
