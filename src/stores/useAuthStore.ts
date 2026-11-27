@@ -51,6 +51,7 @@ export const useAuthStore = create<AuthState>()((set, get) => {
     const seq = ++sessionSeq;
     if (!session) {
       set(signedOut);
+      supabase.realtime.disconnect(); // 로그아웃하면 실시간 연결도 끊어요 (다시 로그인하면 자동으로 다시 연결)
       return;
     }
     try {
