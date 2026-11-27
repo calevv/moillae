@@ -43,14 +43,19 @@ const signedOut = {
 };
 
 export const useAuthStore = create<AuthState>()((set, get) => {
+  // 세션 이벤트가 연달아 오면 마지막 것만 반영해요 (늦게 끝난 옛 결과는 버림)
+  let sessionSeq = 0;
+
   // 세션이 바뀔 때마다: 없으면 로그아웃 상태, 있으면 프로필 확인 후 로그인 상태
   async function applySession(session: Session | null) {
+    const seq = ++sessionSeq;
     if (!session) {
       set(signedOut);
       return;
     }
     try {
       const profile = await ensureProfile(session.user);
+      if (seq !== sessionSeq) return;
       set({
         status: "signedIn",
         userId: session.user.id,
@@ -58,6 +63,7 @@ export const useAuthStore = create<AuthState>()((set, get) => {
         profile,
       });
     } catch (error) {
+      if (seq !== sessionSeq) return;
       console.error(error);
       set(signedOut);
     }

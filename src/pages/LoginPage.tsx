@@ -2,12 +2,28 @@ import { Link, Navigate, useNavigate } from "react-router";
 import { useNextPath } from "@/hooks/useNextPath";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { withNext } from "@/utils/next";
+import { useEffect, useState } from "react";
+import { signInWithGoogle } from "@/api/auth";
+import { toast } from "@/stores/useToastStore";
+import { getInstallContext, kakaoOpenExternalUrl } from "@/utils/device";
 
 function LoginPage() {
   const status = useAuthStore((s) => s.status);
   const enterDemo = useAuthStore((s) => s.enterDemo);
   const navigate = useNavigate();
   const next = useNextPath(); // 로그인 후 돌아갈 곳 (없으면 null)
+  const [googlePending, setGooglePending] = useState(false);
+  const { inAppBrowser } = getInstallContext(); // 카톡 등 앱 안 브라우저에서는 구글이 로그인을 막아요
+
+  // 구글 화면에서 뒤로 가기로 돌아오면 브라우저가 떠나기 전 화면을 그대로 되살려요(bfcache).
+  // 그때 "이동하는 중" 상태가 남아 있으니 풀어 줘요
+  useEffect(() => {
+    function handlePageShow(e: PageTransitionEvent) {
+      if (e.persisted) setGooglePending(false);
+    }
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
 
   if (status === "signedIn") return <Navigate to={next ?? "/home"} replace />;
   if (status === "demo") return <Navigate to="/home" replace />;
@@ -15,6 +31,18 @@ function LoginPage() {
   function handleDemo() {
     enterDemo();
     navigate("/home");
+  }
+
+  async function handleGoogle() {
+    setGooglePending(true);
+    try {
+      await signInWithGoogle(next ?? "/home"); // 성공하면 구글 화면으로 이동해요
+    } catch {
+      setGooglePending(false);
+      toast.error(
+        "구글 로그인을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.",
+      );
+    }
   }
 
   return (
@@ -49,11 +77,27 @@ function LoginPage() {
       <div className="mt-2 flex flex-col gap-3">
         <button
           type="button"
-          disabled
-          className="h-[54px] rounded-full bg-coral text-[17px] font-bold opacity-50"
+          onClick={() => void handleGoogle()}
+          disabled={googlePending || inAppBrowser !== null}
+          className="h-[54px] rounded-full bg-coral text-[17px] font-bold disabled:opacity-50"
         >
-          구글로 계속하기 (준비 중)
+          {googlePending ? "구글로 이동하는 중…" : "Google로 계속하기"}
         </button>
+        {inAppBrowser && (
+          <div className="-mt-1 flex flex-col items-center gap-2 text-center text-[13px] leading-normal text-subtext">
+            <p>앱 안 브라우저에서는 구글 로그인을 쓸 수 없어요.</p>
+            {inAppBrowser === "kakaotalk" ? (
+              <a
+                href={kakaoOpenExternalUrl(window.location.href)}
+                className="flex min-h-11 items-center px-3 font-bold text-plum underline underline-offset-[3px]"
+              >
+                기본 브라우저로 열기
+              </a>
+            ) : (
+              <p>Safari나 Chrome에서 이 주소를 열어 주세요.</p>
+            )}
+          </div>
+        )}
         <button
           type="button"
           disabled
