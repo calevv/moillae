@@ -46,6 +46,8 @@ function shouldShow(): boolean {
 export default function InstallBanner() {
   // 처음 그릴 때 한 번만 검사 (함수를 넘기면 매번이 아니라 처음에만 실행돼요)
   const [visible, setVisible] = useState(shouldShow);
+  // 아이폰은 Safari 탭에서 알림을 켤 수 없어서, 설치해야 알림을 받을 수 있어요
+  const isIos = getInstallContext().platform === "ios";
 
   if (!visible) return null;
 
@@ -67,9 +69,16 @@ export default function InstallBanner() {
       className="rounded-xl border border-line pt-3 pr-1 pb-2 pl-3.5"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm leading-normal font-bold">
-          홈 화면에 추가하면 바로 열 수 있어요.
-        </p>
+        <div className="min-w-0">
+          <p className="text-sm leading-normal font-bold">
+            홈 화면에 추가하면 바로 열 수 있어요.
+          </p>
+          {isIos && (
+            <p className="mt-0.5 text-[13px] leading-normal text-subtext">
+              아이폰은 설치해야 알림을 받을 수 있어요.
+            </p>
+          )}
+        </div>
         <button
           type="button"
           onClick={close}

@@ -126,6 +126,11 @@ function InstallPage() {
           : "androidSteps"
         : autoGuide;
 
+  // 지금 보고 있는 안내가 아이폰용인지 (직접 고른 것 포함). 이미 설치했으면 필요 없어요
+  const isIosGuide =
+    manual === "ios" || (manual === null && ctx.platform === "ios");
+  const showPushNote = isIosGuide && guide !== "installed";
+
   // 앱 안에서 이동해 왔으면 뒤로, 주소로 바로 열었으면 첫 화면으로
   const goBack = () =>
     location.key !== "default" ? navigate(-1) : navigate("/");
@@ -263,6 +268,12 @@ function InstallPage() {
       <p className="mt-3 text-sm leading-relaxed text-subtext">
         홈 화면에 추가하면 주소창 없이 앱처럼 바로 열 수 있어요.
       </p>
+
+      {showPushNote && (
+        <p className="mt-1.5 text-sm leading-relaxed font-bold">
+          아이폰은 설치해야 알림을 받을 수 있어요.
+        </p>
+      )}
 
       {bodies[guide]}
 
