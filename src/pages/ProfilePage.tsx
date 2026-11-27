@@ -4,8 +4,9 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { confirmDialog } from "@/stores/useConfirmStore";
 import { toast } from "@/stores/useToastStore";
 import { getInstallContext } from "@/utils/device";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import PushSetting from "@/components/PushSetting";
+import { useGroups, useMemberMap } from "@/stores/selectors";
 
 const MAX_NAME = 20;
 
@@ -16,6 +17,11 @@ function ProfilePage() {
   const profile = useAuthStore((s) => s.profile);
   const updateName = useAuthStore((s) => s.updateName);
   const signOut = useAuthStore((s) => s.signOut);
+  const deleteAccount = useAuthStore((s) => s.deleteAccount);
+  const groups = useGroups();
+  const memberMap = useMemberMap();
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
 
   // 이름 수정 모드에서만 쓰는 화면 상태
   const [editing, setEditing] = useState(false);
@@ -75,6 +81,53 @@ function ProfilePage() {
       tone: "strong",
     });
     if (ok) await signOut(); // RequireAuth가 알아서 로그인 화면으로 보내요
+  }
+
+  // 탈퇴하면 생기는 일을 그룹별로 미리 알려 줘요 (DB 함수와 같은 규칙)
+  function buildDeleteSummary(): string {
+    const myGroups = groups.filter(
+      (g) => userId && g.memberIds.includes(userId),
+    );
+    const parts = ["모든 그룹에서 나가고 내 응답, 알림, 계정 정보가 삭제돼요."];
+
+    for (const g of myGroups) {
+      if (g.ownerId !== userId || g.memberIds.length <= 1) continue;
+      const nextId = g.memberIds.find((id) => id !== userId); // 들어온 순서대로라 첫 번째 다른 멤버
+      const nextName = nextId ? memberMap[nextId]?.name : undefined;
+      parts.push(`${g.name} 방장은 ${nextName ?? "다른 멤버"}님에게 넘어가요.`);
+    }
+
+    const aloneCount = myGroups.filter((g) => g.memberIds.length <= 1).length;
+    if (aloneCount > 0)
+      parts.push(`나 혼자 있는 그룹 ${aloneCount}개는 삭제돼요.`);
+
+    parts.push("되돌릴 수 없어요.");
+    return parts.join(" ");
+  }
+
+  async function handleDeleteAccount() {
+    const ok = await confirmDialog({
+      title: "모일래에서 탈퇴할까요?",
+      description: buildDeleteSummary(),
+      confirmLabel: "탈퇴하기",
+      cancelLabel: "취소",
+      tone: "danger",
+    });
+    if (!ok) return;
+
+    setDeleting(true);
+    try {
+      const { accountDeleted } = await deleteAccount();
+      navigate("/", { replace: true });
+      toast.success(
+        accountDeleted
+          ? "탈퇴했어요. 그동안 고마웠어요."
+          : "모일래 정보를 모두 지웠어요. 같은 계정을 쓰는 다른 서비스가 있어 로그인 계정은 남아 있어요.",
+      );
+    } catch {
+      setDeleting(false);
+      toast.error("탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요.");
+    }
   }
 
   return (
@@ -198,7 +251,6 @@ function ProfilePage() {
               </>
             )}
           </section>
-
           {/* 이메일 */}
           <section className="border-y border-line py-5">
             <div className="flex flex-col gap-0.5">
@@ -211,9 +263,7 @@ function ProfilePage() {
               이메일은 바꿀 수 없어요.
             </p>
           </section>
-
           <PushSetting />
-
           {getInstallContext().isStandalone ? (
             <div className="flex h-14 items-center justify-between border-b border-line text-base font-medium">
               앱으로 설치하기
@@ -247,6 +297,14 @@ function ProfilePage() {
             className="mt-8 h-[54px] w-full rounded-full border-[1.5px] border-plum bg-white text-[17px] font-bold"
           >
             로그아웃
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleDeleteAccount()}
+            disabled={deleting}
+            className="mt-4 min-h-11 self-center px-2 text-sm text-subtext underline underline-offset-4 disabled:opacity-60"
+          >
+            {deleting ? "탈퇴하는 중…" : "회원 탈퇴"}
           </button>
         </div>
       )}

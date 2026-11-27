@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "types": "supabase gen types typescript --project-id whpyxnalmhidnmfavcwv --schema moillae > src/types/database.ts",
     "deploy:holidays": "supabase functions deploy moillae-holidays --remote=whpyxnalmhidnmfavcwv --use-api",
-    "deploy:push": "supabase functions deploy moillae-send-push --remote=whpyxnalmhidnmfavcwv --use-api"
+    "deploy:push": "supabase functions deploy moillae-send-push --remote=whpyxnalmhidnmfavcwv --use-api",
+    "deploy:delete-account": "supabase functions deploy moillae-delete-account --remote=whpyxnalmhidnmfavcwv --use-api"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

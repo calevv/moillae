@@ -347,6 +347,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_account_data: { Args: { p_user_id: string }; Returns: number }
       get_invite_preview: {
         Args: { p_code: string }
         Returns: {
@@ -359,6 +360,10 @@ export type Database = {
       is_group_member: { Args: { gid: string }; Returns: boolean }
       join_group_by_code: { Args: { p_code: string }; Returns: string }
       leave_group: { Args: { p_group_id: string }; Returns: undefined }
+      leave_group_for: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: undefined
+      }
       option_group_id: { Args: { oid: string }; Returns: string }
       poll_group_id: { Args: { pid: string }; Returns: string }
       regenerate_invite_code: { Args: { p_group_id: string }; Returns: string }
