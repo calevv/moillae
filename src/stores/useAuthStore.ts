@@ -6,11 +6,13 @@ import {
   signOutFromSupabase,
   signUpWithEmail,
   updateDisplayName,
+  clearLocalSession,
 } from "@/api/auth";
 import { CURRENT_USER_ID } from "@/data/dummy";
+import { deleteMyAccount } from "@/api/account";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/types/auth";
-import { detachPush } from "@/utils/push";
+import { detachPush, getCurrentSubscription } from "@/utils/push";
 
 type AuthStatus = "loading" | "signedOut" | "signedIn" | "demo";
 
@@ -30,6 +32,7 @@ type AuthState = {
   signOut: () => Promise<void>;
   enterDemo: () => void;
   updateName: (name: string) => Promise<void>;
+  deleteAccount: () => Promise<{ accountDeleted: boolean }>;
 };
 
 const signedOut = {
@@ -105,6 +108,22 @@ export const useAuthStore = create<AuthState>()((set, get) => {
         return;
       }
       await signOutFromSupabase(); // 리스너가 signedOut으로 바꿔요
+    },
+    deleteAccount: async () => {
+      const result = await deleteMyAccount(); // 실패하면 여기서 멈춰요 (화면에서 토스트)
+
+      // 이 브라우저의 푸시 구독도 해제 (서버 기록은 이미 지워졌어요)
+      await getCurrentSubscription()
+        .then((sub) => sub?.unsubscribe())
+        .catch((e: unknown) => console.error("푸시 구독 해제 실패", e));
+
+      // 서버에는 계정이 없으니 이 기기의 로그인 정보만 지워요 (리스너가 signedOut으로 바꿔요)
+      await clearLocalSession().catch((e: unknown) => {
+        console.error("로그인 정보 정리 실패", e);
+        set(signedOut); // 그래도 화면은 로그아웃 상태로
+      });
+
+      return result;
     },
 
     updateName: async (name) => {
