@@ -16,15 +16,20 @@ const toProfile = (row: ProfileRow): Profile => ({
   avatarUrl: row.avatar_url,
 });
 
-// 모일래 프로필이 있으면 가져오고, 없으면 만들어요 (다른 앱 가입자 대비)
-export async function ensureProfile(user: User): Promise<Profile> {
-  const { data: existing, error: selectError } = await supabase
+async function fetchProfile(userId: string): Promise<Profile | null> {
+  const { data, error } = await supabase
     .from("profiles")
     .select(PROFILE_COLUMNS)
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
-  if (selectError) throw selectError;
-  if (existing) return toProfile(existing);
+  if (error) throw error;
+  return data ? toProfile(data) : null;
+}
+
+// 모일래 프로필이 있으면 가져오고, 없으면 만들어요 (다른 앱 가입자 대비)
+export async function ensureProfile(user: User): Promise<Profile> {
+  const existing = await fetchProfile(user.id);
+  if (existing) return existing;
 
   const meta = user.user_metadata as {
     display_name?: string;
@@ -37,17 +42,20 @@ export async function ensureProfile(user: User): Promise<Profile> {
     20,
   );
 
-  const { data: created, error: insertError } = await supabase
-    .from("profiles")
-    .insert({
+  // 로그인 이벤트가 겹쳐 동시에 불려도 한 번만 만들어지게: 이미 있으면 그냥 넘어가요
+  const { error: insertError } = await supabase.from("profiles").upsert(
+    {
       id: user.id,
       display_name: displayName,
       avatar_url: meta.avatar_url ?? null,
-    })
-    .select(PROFILE_COLUMNS)
-    .single();
+    },
+    { onConflict: "id", ignoreDuplicates: true },
+  );
   if (insertError) throw insertError;
-  return toProfile(created);
+
+  const created = await fetchProfile(user.id);
+  if (!created) throw new Error("profile_not_created");
+  return created;
 }
 
 export async function signInWithEmail(email: string, password: string) {
@@ -83,10 +91,10 @@ export function authErrorMessage(error: unknown): string {
   const code = (error as { code?: string } | null)?.code;
   switch (code) {
     case "invalid_credentials":
-      return "이메일 또는 비밀번호가 틀렸어요.";
+      return "이메일 또는 비밀번호가 틀렸어요. 간편 로그인으로 가입했다면 가입할 때 쓴 방법으로 로그인해 주세요.";
     case "user_already_exists":
     case "email_exists":
-      return "이미 가입된 이메일이에요. 로그인해 주세요.";
+      return "이미 가입된 이메일이에요. 간편 로그인으로 가입했다면 가입할 때 쓴 방법으로 로그인해 주세요.";
     case "weak_password":
       return "비밀번호가 너무 짧거나 쉬워요.";
     case "email_address_invalid":
@@ -115,5 +123,17 @@ export async function updateDisplayName(
 // 탈퇴 직후처럼 서버에 알릴 필요가 없을 때: 이 기기의 로그인 정보만 지워요
 export async function clearLocalSession() {
   const { error } = await supabase.auth.signOut({ scope: "local" });
+  if (error) throw error;
+}
+
+// 구글 로그인 시작. 구글 → Supabase를 거쳐 next 주소로 돌아와요 (이 함수 실행 후 페이지가 이동해요)
+export async function signInWithGoogle(next: string) {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}${next}`,
+      queryParams: { prompt: "select_account" }, // 매번 구글 계정 고르는 화면을 보여 줘요
+    },
+  });
   if (error) throw error;
 }
