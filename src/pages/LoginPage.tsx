@@ -13,7 +13,9 @@ function LoginPage() {
   const navigate = useNavigate();
   const next = useNextPath(); // 로그인 후 돌아갈 곳 (없으면 null)
   const [googlePending, setGooglePending] = useState(false);
-  const { inAppBrowser } = getInstallContext(); // 카톡 등 앱 안 브라우저에서는 구글이 로그인을 막아요
+  const { inAppBrowser, platform, isStandalone } = getInstallContext(); // 카톡 등 앱 안 브라우저에서는 구글이 로그인을 막아요
+  // 아이폰 홈 화면 앱: Gmail 앱으로 갔다 오는 2단계 인증이 끊겨요 (21-7)
+  const isIosApp = platform === "ios" && isStandalone;
 
   // 구글 화면에서 뒤로 가기로 돌아오면 브라우저가 떠나기 전 화면을 그대로 되살려요(bfcache).
   // 그때 "이동하는 중" 상태가 남아 있으니 풀어 줘요
@@ -83,6 +85,12 @@ function LoginPage() {
         >
           {googlePending ? "구글로 이동하는 중…" : "Google로 계속하기"}
         </button>
+        {isIosApp && (
+          <p className="-mt-1 text-center text-[13px] leading-normal text-subtext">
+            로그인이 안 되면 구글 확인 화면에서 '다른 방법 시도'를 눌러 인증
+            코드로 확인하거나, 이메일로 로그인해 주세요.
+          </p>
+        )}
         {inAppBrowser && (
           <div className="-mt-1 flex flex-col items-center gap-2 text-center text-[13px] leading-normal text-subtext">
             <p>앱 안 브라우저에서는 구글 로그인을 쓸 수 없어요.</p>
